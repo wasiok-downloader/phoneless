@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phoneless — Мокапы</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    background: #F2F2F7;
+    color: #1C1C1E;
+    min-height: 100vh;
+    padding: 48px 24px;
+  }
+
+  header {
+    max-width: 640px;
+    margin: 0 auto 40px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: #0A84FF;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    color: #6E6E73;
+    font-size: 15px;
+    margin-top: 4px;
+  }
+
+  .grid {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #8E8E93;
+    margin: 16px 0 4px;
+  }
+
+  .card {
+    background: #FFFFFF;
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.15s;
+  }
+
+  .card:hover { opacity: 0.7; }
+
+  .card-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .card-meta {
+    font-size: 13px;
+    color: #8E8E93;
+    margin-top: 2px;
+  }
+
+  .chevron {
+    color: #C7C7CC;
+    font-size: 18px;
+    font-weight: 300;
+  }
+
+  .updated {
+    font-size: 12px;
+    color: #8E8E93;
+    background: #F2F2F7;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-right: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📵</div>
+    <h1>Phoneless</h1>
+  </div>
+  <p class="subtitle">Дизайн-мокапы для обсуждения с командой</p>
+</header>
+
+<div class="grid">
+
+  <div class="section-label">Онбординг</div>
+
+  <a class="card" href="onboarding-screen-1.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#EAF4FF;">🎬</div>
+      <div>
+        <div class="card-title">Онбординг — Экран 1</div>
+        <div class="card-meta">Первый экран онбординга</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">12 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <a class="card" href="onboarding-animation-mockup.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#EAF4FF;">✨</div>
+      <div>
+        <div class="card-title">Онбординг — Анимация</div>
+        <div class="card-meta">Анимированный мокап онбординга</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">12 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <div class="section-label">App Limits</div>
+
+  <a class="card" href="app-limits-mockup.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#FFF0EA;">⏱️</div>
+      <div>
+        <div class="card-title">App Limits — Основной экран</div>
+        <div class="card-meta">Основной мокап App Limits</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">5 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <a class="card" href="app-limits-card-variants.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#FFF0EA;">🃏</div>
+      <div>
+        <div class="card-title">App Limits — Варианты карточки</div>
+        <div class="card-meta">Состояния и варианты UI-карточки</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">5 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <a class="card" href="app-limits-hierarchy.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#FFF0EA;">🗂️</div>
+      <div>
+        <div class="card-title">App Limits — Иерархия</div>
+        <div class="card-meta">Структура и иерархия элементов</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">6 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <div class="section-label">Стрики</div>
+
+  <a class="card" href="streak-morning-screen.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#EAFAF1;">🌅</div>
+      <div>
+        <div class="card-title">Утренний экран стрика</div>
+        <div class="card-meta">Экран при открытии приложения утром</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">5 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <a class="card" href="streakbar-states-2.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#EAFAF1;">🔥</div>
+      <div>
+        <div class="card-title">Streak Bar — Состояния</div>
+        <div class="card-meta">Все состояния полоски стрика</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">2 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <a class="card" href="streak-freeze-card-states.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#EAFAF1;">❄️</div>
+      <div>
+        <div class="card-title">Streak Freeze — Состояния карточки</div>
+        <div class="card-meta">Карточка заморозки стрика</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">3 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <div class="section-label">Screen Time</div>
+
+  <a class="card" href="screentime-mockup-v2.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#F0EAFF;">📊</div>
+      <div>
+        <div class="card-title">Screen Time — v2</div>
+        <div class="card-meta">Актуальная версия вкладки экранного времени</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">2 мар</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+  <a class="card" href="screentime-mockup.html">
+    <div class="card-left">
+      <div class="card-icon" style="background:#F0EAFF;">📉</div>
+      <div>
+        <div class="card-title">Screen Time — v1</div>
+        <div class="card-meta">Первая версия вкладки экранного времени</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="updated">28 фев</span>
+      <span class="chevron">›</span>
+    </div>
+  </a>
+
+</div>
+
+</body>
+</html>

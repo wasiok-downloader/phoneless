@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phoneless — Morning Streak Screen</title>
+  <style>
+    /* ─── Reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── Page shell ─────────────────────────────────────────── */
+    body {
+      background: #E5E5EA;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      padding: 48px 24px;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+                   'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* ─── Section label ──────────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8E8E93;
+      text-align: center;
+    }
+
+    /* ─── Phone frame ────────────────────────────────────────── */
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: #FFFFFF;
+      border-radius: 54px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.08),
+        0 24px 80px rgba(0,0,0,0.22),
+        0 8px 24px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Dynamic island */
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 34px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    /* ─── Status bar ─────────────────────────────────────────── */
+    .status-bar {
+      height: 59px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 10px;
+      flex-shrink: 0;
+    }
+    .status-bar .time {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #000;
+    }
+    .status-bar .icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-bar .icons svg {
+      fill: #000;
+    }
+
+    /* ─── Screen content ─────────────────────────────────────── */
+    .screen-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 0;
+      /* Top: ~13% of remaining height (844-59=785, 13%≈102px) */
+      padding-top: 80px;
+      padding-bottom: 0;
+    }
+
+    /* ─── Hero: Number + label ───────────────────────────────── */
+    .streak-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Subtle achievement glow — the "soul" */
+    .streak-hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(
+        circle,
+        rgba(52, 199, 89, 0.09) 0%,
+        rgba(52, 199, 89, 0.04) 45%,
+        transparent 70%
+      );
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .streak-number {
+      font-size: 108px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #34C759;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .streak-label {
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      color: #8E8E93;
+      margin-top: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── 7-day strip ────────────────────────────────────────── */
+    .week-strip-wrapper {
+      margin-top: 44px;
+    }
+
+    .week-strip {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .day-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .day-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #34C759;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+
+    /* Today's dot — slightly larger, more presence */
+    .day-dot.today {
+      width: 42px;
+      height: 42px;
+      box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.18);
+    }
+
+    /* Checkmark SVG inside each dot */
+    .day-dot svg {
+      width: 16px;
+      height: 16px;
+      stroke: #FFFFFF;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+    .day-dot.today svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .day-letter {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #8E8E93;
+    }
+    /* Today's letter uses black */
+    .day-slot.active .day-letter {
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* ─── Motivational copy ──────────────────────────────────── */
+    .motivation {
+      margin-top: 44px;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: #000000;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    /* ─── Spacer ─────────────────────────────────────────────── */
+    .spacer { flex: 1; }
+
+    /* ─── CTA Button ─────────────────────────────────────────── */
+    .cta-area {
+      width: 100%;
+      padding: 0 16px 50px;
+      flex-shrink: 0;
+    }
+
+    .btn-continue {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 50px;
+      background: #0A84FF;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      /* Subtle inner highlight for depth */
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        0 2px 8px rgba(10, 132, 255, 0.30);
+    }
+    .btn-continue span {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #FFFFFF;
+    }
+
+    /* ─── Ad Creative variant (with context frame) ───────────── */
+    .phone.ad-mode {
+      /* Slight off-white to separate from pure white BG */
+      background: #FAFAFA;
+    }
+
+    /* ─── Ad banner annotation ───────────────────────────────── */
+    .annotation {
+      width: 390px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .annotation h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #000;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+    }
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .spec-key {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8E8E93;
+    }
+    .spec-val {
+      font-size: 12px;
+      font-weight: 500;
+      color: #000;
+      font-family: 'SF Mono', 'Monaco', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <p class="section-label">Morning Streak Screen · Phoneless · MVP v1.0</p>
+
+  <!-- ─── Primary screen ──────────────────────────────────────── -->
+  <div class="phone">
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="icons">
+        <!-- Signal bars -->
+        <svg width="17" height="12" viewBox="0 0 17 12">
+          <rect x="0" y="8" width="3" height="4" rx="1"/>
+          <rect x="4.5" y="5.5" width="3" height="6.5" rx="1"/>
+          <rect x="9" y="3" width="3" height="9" rx="1"/>
+          <rect x="13.5" y="0" width="3" height="12" rx="1"/>
+        </svg>
+        <!-- WiFi -->
+        <svg width="16" height="12" viewBox="0 0 16 12">
+          <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>
+          <path d="M8 6C6.1 6 4.4 6.8 3.2 8L1.8 6.5A7.9 7.9 0 0 1 8 4c2.3 0 4.4 1 5.9 2.5L12.5 8C11.3 6.8 9.8 6 8 6z" opacity=".6"/>
+          <path d="M8 3a11 11 0 0 0-7.8 3.2L-.4 4.7A12.9 12.9 0 0 1 8 1c3.6 0 6.9 1.5 9.3 3.9l-1.5 1.5A10.9 10.9 0 0 0 8 3z" opacity=".3"/>
+        </svg>
+        <!-- Battery -->
+        <svg width="25" height="12" viewBox="0 0 25 12">
+          <rect x="0" y="1" width="21" height="10" rx="3" stroke="#000" stroke-width="1.2" fill="none"/>
+          <rect x="21.5" y="3.5" width="2" height="5" rx="1" fill="#000" opacity=".4"/>
+          <rect x="1.5" y="2.5" width="16" height="7" rx="1.5" fill="#34C759"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="screen-content">
+
+      <!-- Hero: streak number -->
+      <div class="streak-hero">
+        <div class="streak-number">15</div>
+        <div class="streak-label">day streak</div>
+      </div>
+
+      <!-- 7-day strip -->
+      <div class="week-strip-wrapper">
+        <div class="week-strip">
+
+          <!-- Day 1: Mon -->
+          <div class="day-slot">
+            <div class="day-dot">
+              <svg viewBox="0 0 16 16"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
+            </div>
+            <span class="day-letter">M</span>
+          </div>
+
+          <!-- Day 2: Tue -->
+          <div class="day-slot">
+            <div class="day-dot">
+              <svg viewBox="0 0 16 16"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
+            </div>
+            <span class="day-letter">T</span>
+          </div>
+
+          <!-- Day 3: Wed -->
+          <div class="day-slot">
+            <div class="day-dot">
+              <svg viewBox="0 0 16 16"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
+            </div>
+            <span class="day-letter">W</span>
+          </div>
+
+          <!-- Day 4: Thu -->
+          <div class="day-slot">
+            <div class="day-dot">
+              <svg viewBox="0 0 16 16"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
+            </div>
+            <span class="day-letter">T</span>
+          </div>
+
+          <!-- Day 5: Fri -->
+          <div class="day-slot">
+            <div class="day-dot">
+              <svg viewBox="0 0 16 16"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
+            </div>
+            <span class="day-letter">F</span>
+          </div>
+
+          <!-- Day 6: Sat -->
+          <div class="day-slot">
+            <div class="day-dot">
+              <svg viewBox="0 0 16 16"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
+            </div>
+            <span class="day-letter">S</span>
+          </div>
+
+          <!-- Day 7: Today (Sun) — "just clicked in" -->
+          <div class="day-slot active">
+            <div class="day-dot today">
+              <svg viewBox="0 0 16 16"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
+            </div>
+            <span class="day-letter">S</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Motivational copy -->
+      <p class="motivation">Another intentional day.</p>
+
+      <div class="spacer"></div>
+
+      <!-- CTA -->
+      <div class="cta-area">
+        <button class="btn-continue">
+          <span>Continue</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── Design spec annotation ──────────────────────────────── -->
+  <div class="annotation">
+    <h3>Design Tokens Used</h3>
+    <div class="spec-grid">
+      <div class="spec-item">
+        <span class="spec-key">Background</span>
+        <span class="spec-val">#FFFFFF</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">Streak Number</span>
+        <span class="spec-val">#34C759 · 108px · 700</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">"day streak"</span>
+        <span class="spec-val">#8E8E93 · 20px · 400</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">7-day dots</span>
+        <span class="spec-val">#34C759 fill · white ✓</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">Today's dot</span>
+        <span class="spec-val">42px + green ring glow</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">Copy text</span>
+        <span class="spec-val">#000000 · 17px · 400</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">CTA button</span>
+        <span class="spec-val">#0A84FF · 50px · r14</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">Hero glow</span>
+        <span class="spec-val">rgba(52,199,89,0.09) radial</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">Screen padding</span>
+        <span class="spec-val">16pt horizontal</span>
+      </div>
+      <div class="spec-item">
+        <span class="spec-key">Number tracking</span>
+        <span class="spec-val">-0.04em (display size)</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="section-label">Side-by-side: Ad Creative framing</p>
+
+  <!-- ─── Ad creative mockup ─────────────────────────────────── -->
+  <div style="
+    background: linear-gradient(135deg, #001A0A 0%, #002810 100%);
+    border-radius: 24px;
+    padding: 48px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    width: 900px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  ">
+    <!-- Left: marketing copy -->
+    <div style="flex: 1; color: #fff;">
+      <p style="
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #34C759;
+        margin-bottom: 16px;
+      ">Phoneless</p>
+      <h2 style="
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        line-height: 1.15;
+        color: #FFFFFF;
+        margin-bottom: 16px;
+        max-width: 280px;
+      ">Build the habit of not reaching for your phone.</h2>
+      <p style="
+        font-size: 16px;
+        font-weight: 400;
+        color: rgba(255,255,255,0.55);
+        line-height: 1.6;
+        max-width: 260px;
+        margin-bottom: 32px;
+      ">Track your streaks. Own your attention. Every day counts.</p>
+      <div style="
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #34C759;
+        border-radius: 12px;
+        padding: 12px 24px;
+      ">
+        <span style="font-size: 15px; font-weight: 600; color: #000; letter-spacing: -0.01em;">Download on the App Store</span>
+      </div>
+    </div>
+
+    <!-- Right: phone -->
+    <div class="phone" style="
+      width: 260px;
+      height: 563px;
+      border-radius: 36px;
+      flex-shrink: 0;
+      transform: rotate(2deg);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.1),
+        0 32px 80px rgba(0,0,0,0.5);
+    ">
+      <!-- Dynamic island (scaled) -->
+      <div style="
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 23px;
+        background: #000;
+        border-radius: 14px;
+        z-index: 10;
+      "></div>
+
+      <!-- Status bar -->
+      <div class="status-bar" style="height: 39px; padding: 0 18px 6px;">
+        <span class="time" style="font-size: 10px;">9:41</span>
+        <div class="icons" style="gap: 4px;">
+          <svg width="11" height="8" viewBox="0 0 17 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="1"/><rect x="9" y="3" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="17" height="8" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="3" stroke="#000" stroke-width="1.2" fill="none"/><rect x="21.5" y="3.5" width="2" height="5" rx="1" fill="#000" opacity=".4"/><rect x="1.5" y="2.5" width="16" height="7" rx="1.5" fill="#34C759"/></svg>
+        </div>
+      </div>
+
+      <!-- Scaled screen content -->
+      <div style="
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 10px 0;
+      ">
+        <!-- Hero -->
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
+          <div style="
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -55%);
+            width: 170px; height: 170px;
+            background: radial-gradient(circle, rgba(52,199,89,0.10) 0%, transparent 70%);
+          "></div>
+          <div style="
+            font-size: 72px;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            color: #34C759;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+          ">15</div>
+          <div style="
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 0.03em;
+            color: #8E8E93;
+            margin-top: 2px;
+          ">day streak</div>
+        </div>
+
+        <!-- 7-day strip -->
+        <div style="margin-top: 28px; display: flex; gap: 6px; align-items: flex-start; justify-content: center;">
+          <!-- 7 dots -->
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:25px;height:25px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8.5 6.5,12 13,4.5"/></svg></div><span style="font-size:8px;color:#8E8E93;font-weight:500;">M</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:25px;height:25px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8.5 6.5,12 13,4.5"/></svg></div><span style="font-size:8px;color:#8E8E93;font-weight:500;">T</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:25px;height:25px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8.5 6.5,12 13,4.5"/></svg></div><span style="font-size:8px;color:#8E8E93;font-weight:500;">W</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:25px;height:25px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8.5 6.5,12 13,4.5"/></svg></div><span style="font-size:8px;color:#8E8E93;font-weight:500;">T</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:25px;height:25px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8.5 6.5,12 13,4.5"/></svg></div><span style="font-size:8px;color:#8E8E93;font-weight:500;">F</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:25px;height:25px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8.5 6.5,12 13,4.5"/></svg></div><span style="font-size:8px;color:#8E8E93;font-weight:500;">S</span></div>
+          <!-- Today -->
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(52,199,89,0.22);">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
+            </div>
+            <span style="font-size:8px;color:#000;font-weight:600;">S</span>
+          </div>
+        </div>
+
+        <p style="
+          margin-top: 28px;
+          font-size: 12px;
+          font-weight: 400;
+          color: #000;
+          text-align: center;
+          letter-spacing: -0.01em;
+        ">Another intentional day.</p>
+
+        <div style="flex:1;"></div>
+
+        <div style="width:100%; padding: 0 10px 34px;">
+          <button style="
+            width: 100%;
+            height: 34px;
+            background: #0A84FF;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 2px 6px rgba(10,132,255,0.3);
+          ">Continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="section-label" style="margin-top: 8px;">Open streak-morning-screen.html in browser to preview</p>
+
+</body>
+</html>

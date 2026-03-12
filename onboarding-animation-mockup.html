@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phoneless – Onboarding Animation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 28px;
+    }
+
+    .replay-btn {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 100px;
+      padding: 9px 22px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .replay-btn:hover {
+      background: rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.85);
+    }
+
+    .iphone {
+      width: 390px;
+      height: 844px;
+      background: #F2F2F7;
+      border-radius: 55px;
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+      box-shadow:
+        0 60px 120px rgba(0,0,0,0.7),
+        0 0 0 0.5px rgba(255,255,255,0.07) inset;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 59px;
+      display: flex;
+      align-items: center;
+      padding: 11px 16px;
+      z-index: 10;
+    }
+    .status-time {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #0E101B;
+      flex: 1;
+    }
+    .dynamic-island {
+      width: 125px;
+      height: 37px;
+      background: #000;
+      border-radius: 100px;
+    }
+    .status-icons {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    /* ── App Icon ── */
+    .app-icon {
+      position: absolute;
+      left: 135px;
+      top: 375px;
+      width: 120px;
+      height: 120px;
+      background: #2970FF;
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.82);
+      animation: iconIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+    }
+    .app-icon-letter {
+      font-family: ui-rounded, -apple-system, sans-serif;
+      font-size: 54px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -2px;
+    }
+
+    /* ── Shared headline font ── */
+    .hl {
+      font-family: ui-rounded, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #0E101B;
+      line-height: 32px;
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
+
+    /* ── Morphing word ──
+       Starts as "Phoneless" centered at top=512.
+       Moves to left=181, top=548 via JS translate(53px,36px).
+    ── */
+    #morphWord {
+      position: absolute;
+      left: 128px;
+      top: 512px;
+      display: flex;
+      align-items: baseline;
+      opacity: 0;
+    }
+
+    /* P/p swap: relative container sized by "P" in flow;
+       "p" is absolutely overlaid */
+    #charSwap {
+      position: relative;
+      display: inline-block;
+    }
+    #lowerP {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+    }
+
+    /* "less." wrapper: relative so dotChar can be abs-positioned.
+       lessDot shifts right via translateX to create the word gap. */
+    #lessDot {
+      position: relative;
+      display: inline-block;
+    }
+    #dotChar {
+      position: absolute;
+      left: 100%;
+      top: 0;
+      opacity: 0;
+    }
+
+    /* ── "Use your" ── */
+    #useYour {
+      position: absolute;
+      left: 63px;
+      top: 548px;
+      opacity: 0;
+    }
+
+    /* ── "On purpose." ── */
+    #onPurpose {
+      position: absolute;
+      left: 0; right: 0;
+      top: 580px;
+      text-align: center;
+      opacity: 0;
+    }
+
+    /* ── Subtitle ── */
+    #subtitle {
+      position: absolute;
+      left: 32px; right: 32px;
+      top: 632px;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #0E101B;
+      text-align: center;
+      line-height: 22px;
+      letter-spacing: -0.43px;
+      opacity: 0;
+    }
+
+    /* ── Continue button ── */
+    #ctaWrap {
+      position: absolute;
+      left: 16px; right: 16px;
+      top: 744px;
+      opacity: 0;
+    }
+    .cta-button {
+      height: 54px;
+      background: #1570EF;
+      border-radius: 1000px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .cta-button span {
+      font-family: ui-rounded, -apple-system, sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* ── Home Indicator ── */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 144px;
+      height: 5px;
+      background: rgba(14,16,27,0.18);
+      border-radius: 100px;
+    }
+
+    @keyframes iconIn {
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="iphone" id="iphone">
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="status-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+          <rect x="0"  y="8" width="3" height="4"  rx="0.6" fill="#0E101B"/>
+          <rect x="5"  y="5" width="3" height="7"  rx="0.6" fill="#0E101B"/>
+          <rect x="10" y="3" width="3" height="9"  rx="0.6" fill="#0E101B"/>
+          <rect x="15" y="0" width="3" height="12" rx="0.6" fill="#0E101B"/>
+        </svg>
+        <svg width="17" height="13" viewBox="0 0 17 13" fill="none">
+          <circle cx="8.5" cy="11.5" r="1.5" fill="#0E101B"/>
+          <path d="M5 8.2A5 5 0 0 1 8.5 7a5 5 0 0 1 3.5 1.2" stroke="#0E101B" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M2 5A9 9 0 0 1 8.5 2.5 9 9 0 0 1 15 5" stroke="#0E101B" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
+        <svg width="28" height="13" viewBox="0 0 28 13" fill="none">
+          <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#0E101B" stroke-opacity="0.35"/>
+          <rect x="2"   y="2"   width="17" height="9"  rx="2"   fill="#0E101B"/>
+          <path d="M25 4.5v4c1-.4 1.75-1.3 1.75-2s-.75-1.6-1.75-2z" fill="#0E101B" fill-opacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- App Icon -->
+    <div class="app-icon">
+      <span class="app-icon-letter">P</span>
+    </div>
+
+    <!--
+      Morphing word.
+      Structure:  [P/p] [hone] [less][.]
+      On morph:
+        • whole word slides to translate(53px, 36px)
+        • P fades out, p fades in
+        • [less.] shifts translateX(+7px) → gap opens between "phone" and "less"
+        • [.] fades in
+    -->
+    <div id="morphWord" class="hl">
+      <span id="charSwap">
+        <span id="capP">P</span>
+        <span id="lowerP" class="hl">p</span>
+      </span>
+      <span>hone</span>
+      <span id="lessDot">
+        <span>less</span>
+        <span id="dotChar" class="hl">.</span>
+      </span>
+    </div>
+
+    <!-- State-2 elements (all start invisible) -->
+    <div id="useYour"   class="hl">Use your</div>
+    <div id="onPurpose" class="hl">On purpose.</div>
+    <div id="subtitle">Set which apps distract you. Phoneless adds a pause before each one — so you always choose what to do next.</div>
+    <div id="ctaWrap">
+      <div class="cta-button"><span>Continue</span></div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+
+  <button class="replay-btn" id="replayBtn">↺&nbsp; Replay</button>
+
+  <script>
+    const SPRING   = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+    const EASE_OUT = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    const EASE_IO  = 'cubic-bezier(0.4, 0, 0.2, 1)';
+
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const go   = (el, frames, opts) => el.animate(frames, { fill: 'forwards', ...opts });
+
+    async function runAnimation(root) {
+      const $ = id => root.querySelector('#' + id);
+
+      const morphWord = $('morphWord');
+      const capP      = $('capP');
+      const lowerP    = $('lowerP');
+      const lessDot   = $('lessDot');
+      const dotChar   = $('dotChar');
+      const useYour   = $('useYour');
+      const onPurpose = $('onPurpose');
+      const subtitle  = $('subtitle');
+      const ctaWrap   = $('ctaWrap');
+
+      // ① Phoneless fades up under the icon
+      await wait(1100);
+      go(morphWord,
+        [{ opacity: 0, transform: 'translateY(10px)' },
+         { opacity: 1, transform: 'translateY(0)'    }],
+        { duration: 480, easing: SPRING });
+
+      // ② Morph: "Phoneless" → "phone less."
+      await wait(800); // t = 1900 ms
+
+      // Whole word slides to its final position (left 181, top 548)
+      go(morphWord,
+        [{ transform: 'translate(0,0)'       },
+         { transform: 'translate(53px,36px)' }],
+        { duration: 560, easing: EASE_OUT });
+
+      // P → p crossfade
+      go(capP,
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration: 300, easing: 'ease-in' });
+      go(lowerP,
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 300, easing: 'ease-out' });
+
+      // Gap opens: "less." block drifts right
+      go(lessDot,
+        [{ transform: 'translateX(0)'  },
+         { transform: 'translateX(7px)' }],
+        { duration: 560, easing: EASE_IO });
+
+      // Period appears slightly after split begins
+      go(dotChar,
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 280, delay: 180, easing: 'ease-out' });
+
+      // ③ "Use your" slides in from the left
+      await wait(200); // t = 2100 ms
+      go(useYour,
+        [{ opacity: 0, transform: 'translateX(-18px)' },
+         { opacity: 1, transform: 'translateX(0)'     }],
+        { duration: 460, easing: SPRING });
+
+      // ④ "On purpose." fades up
+      await wait(400); // t = 2500 ms
+      go(onPurpose,
+        [{ opacity: 0, transform: 'translateY(8px)' },
+         { opacity: 1, transform: 'translateY(0)'   }],
+        { duration: 450, easing: SPRING });
+
+      // ⑤ Subtitle fades in — 1 сек паузы после "On purpose."
+      await wait(1450); // t = 3950 ms  (onPurpose start 2500 + anim 450 + pause 1000)
+      go(subtitle,
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 550, easing: EASE_OUT });
+
+      // ⑥ Continue button rises
+      await wait(900); // t = 5200 ms
+      go(ctaWrap,
+        [{ opacity: 0, transform: 'translateY(18px)' },
+         { opacity: 1, transform: 'translateY(0)'    }],
+        { duration: 500, easing: SPRING });
+    }
+
+    function replay() {
+      const old   = document.getElementById('iphone');
+      const fresh = old.cloneNode(true);
+      old.replaceWith(fresh);
+      runAnimation(fresh);
+    }
+
+    document.getElementById('replayBtn').addEventListener('click', replay);
+    runAnimation(document.getElementById('iphone'));
+  </script>
+
+</body>
+</html>

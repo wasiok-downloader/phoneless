@@ -1,0 +1,12 @@
+# System
+.DS_Store
+.claude/
+
+# Docs (not for publishing)
+*.md
+*.swift
+*.json
+skills-lock.json
+
+# Screenshots
+Screen time stats screenshots/

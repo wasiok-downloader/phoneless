@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phoneless — Screen Time v2</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background: #D1D5DB;
+  background-image:
+    radial-gradient(ellipse 70% 55% at 15% 8%,  rgba(190,205,245,0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 85% 92%,  rgba(190,225,200,0.40) 0%, transparent 50%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── iOS system color tokens ── */
+:root {
+  --ios-bg:          #F2F2F7;
+  --ios-card:        #FFFFFF;
+  --ios-label:       #000000;
+  --ios-label2:      rgba(60,60,67,0.60);
+  --ios-label3:      rgba(60,60,67,0.30);
+  --ios-sep:         rgba(60,60,67,0.29);
+  --ios-sep-inset:   rgba(60,60,67,0.18);
+  --ios-fill:        rgba(120,120,128,0.20);
+  --ios-fill2:       rgba(120,120,128,0.16);
+  --ios-blue:        #007AFF;
+  --phl-blue:        #0A84FF;
+  --ios-green:       #34C759;
+  --ios-red:         #FF3B30;
+  --ios-orange:      #FF9500;
+  --ios-gray:        #8E8E93;
+  --ios-gray2:       #AEAEB2;
+  --ios-gray3:       #C7C7CC;
+}
+
+/* ── iPhone Frame ── */
+.phone { position: relative; width: 393px; flex-shrink: 0; }
+
+.phone-shell {
+  background: linear-gradient(158deg, #434345 0%, #1C1C1E 38%, #2C2C2E 100%);
+  border-radius: 55px;
+  padding: 14px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.09),
+    0 0 0 1.5px #0d0d0d,
+    0 48px 96px rgba(0,0,0,0.55),
+    0 20px 40px rgba(0,0,0,0.32);
+}
+
+.btn-power { position:absolute; right:-3.5px; top:162px; width:3.5px; height:70px;
+  background:#252527; border-radius:0 3px 3px 0; }
+.btn-silent { position:absolute; left:-3.5px; top:90px; width:3.5px; height:22px;
+  background:#252527; border-radius:3px 0 0 3px; }
+.btn-vol1   { position:absolute; left:-3.5px; top:122px; width:3.5px; height:36px;
+  background:#252527; border-radius:3px 0 0 3px; }
+.btn-vol2   { position:absolute; left:-3.5px; top:172px; width:3.5px; height:68px;
+  background:#252527; border-radius:3px 0 0 3px; }
+
+/* ── Screen ── */
+.screen {
+  background: var(--ios-bg);
+  border-radius: 44px;
+  overflow: hidden;
+  height: 852px;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+
+/* Dynamic Island */
+.di {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  width: 122px; height: 36px; background: #0A0A0A;
+  border-radius: 20px; z-index: 30;
+}
+
+/* ── Status bar ── */
+.statusbar {
+  height: 59px; flex-shrink: 0;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 28px 10px;
+  position: relative; z-index: 20;
+}
+.sb-time { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; color: var(--ios-label); }
+.sb-icons { display: flex; align-items: center; gap: 7px; }
+.sig { display: flex; align-items: flex-end; gap: 2px; }
+.sig span { display: block; width: 3px; background: var(--ios-label); border-radius: 1px; }
+.sig span:nth-child(1) { height: 4px; }
+.sig span:nth-child(2) { height: 7px; }
+.sig span:nth-child(3) { height: 10px; }
+.sig span:nth-child(4) { height: 13px; opacity: 0.35; }
+.batt { display: flex; align-items: center; gap: 1.5px; }
+.batt-b { width: 25px; height: 12px; border-radius: 3.5px;
+  border: 1.5px solid rgba(0,0,0,0.35); padding: 1.5px; }
+.batt-f { height: 100%; width: 70%; background: var(--ios-label); border-radius: 1.5px; }
+.batt-t { width: 2px; height: 5px; background: rgba(0,0,0,0.32); border-radius: 0 1px 1px 0; }
+
+/* ── Nav bar ── */
+.navbar {
+  flex-shrink: 0;
+  background: rgba(242,242,247,0.88);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 0.5px solid var(--ios-sep);
+  padding: 4px 16px 12px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.nav-title {
+  font-size: 34px; font-weight: 700;
+  letter-spacing: -0.6px; color: var(--ios-label); line-height: 1;
+}
+.v2-badge {
+  font-size: 11px; font-weight: 600; color: var(--ios-orange);
+  background: rgba(255,149,0,0.12); border-radius: 6px;
+  padding: 3px 7px; margin-bottom: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* ── Scroll area ── */
+.scrollview {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.scrollview::-webkit-scrollbar { display: none; }
+.content { padding: 16px 16px 0; }
+
+/* ── Cards ── */
+.card {
+  background: var(--ios-card);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+/* ── Chart card header ── */
+.chart-top { padding: 18px 20px 10px; }
+
+.big-time {
+  font-size: 42px; font-weight: 700;
+  letter-spacing: -1.5px; color: var(--ios-label);
+  line-height: 1; font-variant-numeric: tabular-nums;
+}
+.big-sub {
+  font-size: 13px; color: var(--ios-label2); margin-top: 2px; letter-spacing: -0.1px;
+}
+.peak-line {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 6px;
+  font-size: 13px; font-weight: 500; color: var(--phl-blue);
+}
+.peak-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--phl-blue); }
+
+/* ── Hourly bar chart ── */
+.chart-wrap {
+  padding: 4px 16px 0;
+}
+.bars-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 80px;
+}
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+.bar {
+  width: 100%;
+  border-radius: 3px 3px 1px 1px;
+  background: rgba(10,132,255,0.25);
+  transition: background 0.2s;
+}
+.bar.peak {
+  background: var(--phl-blue);
+  border-radius: 4px 4px 1px 1px;
+}
+
+.x-axis {
+  display: flex;
+  margin-top: 5px;
+  padding: 0 0 2px;
+}
+.x-lbl {
+  flex: 1;
+  text-align: center;
+  font-size: 10px;
+  color: var(--ios-label3);
+  letter-spacing: -0.2px;
+}
+.x-lbl.show { color: var(--ios-label2); font-size: 10.5px; }
+.x-lbl.peak-lbl { color: var(--phl-blue); font-weight: 600; }
+
+/* ── Segmented control (chart) ── */
+.seg-wrap {
+  display: flex;
+  margin: 8px 12px 10px;
+  background: rgba(118,118,128,0.12);
+  border-radius: 9px;
+  padding: 2px;
+}
+.seg {
+  flex: 1;
+  text-align: center;
+  border: none; background: none; border-radius: 7px;
+  padding: 6px 0; cursor: pointer;
+  font-size: 13px; font-weight: 400; color: var(--ios-label2);
+  font-family: inherit;
+  position: relative;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+}
+.seg.active {
+  background: white;
+  color: var(--ios-label);
+  font-weight: 600;
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.10);
+}
+.seg.locked { color: var(--ios-label3); cursor: pointer; }
+.pro-badge {
+  font-size: 9px; font-weight: 700;
+  color: #fff;
+  background: var(--ios-orange);
+  border-radius: 4px;
+  padding: 1px 4px;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+}
+
+/* ── Section header ── */
+.sec-head {
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -0.4px; color: var(--ios-label);
+  margin: 20px 0 10px;
+}
+
+/* ── Awareness segmented control ── */
+.seg-wrap-sm {
+  display: flex;
+  background: rgba(118,118,128,0.12);
+  border-radius: 9px;
+  padding: 2px;
+  margin-bottom: 10px;
+}
+.seg-sm {
+  flex: 1;
+  text-align: center;
+  border: none; background: none; border-radius: 7px;
+  padding: 5.5px 0; cursor: pointer;
+  font-size: 13px; font-weight: 400; color: var(--ios-label2);
+  font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+  transition: all 0.15s;
+}
+.seg-sm.active {
+  background: white;
+  color: var(--ios-label);
+  font-weight: 600;
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.10);
+}
+.seg-sm.locked { color: var(--ios-label3); }
+.lock-icon { font-size: 10px; opacity: 0.7; }
+
+/* ── Awareness cards ── */
+.aw-row { display: flex; gap: 10px; margin-bottom: 20px; }
+.aw-card {
+  flex: 1; background: var(--ios-card); border-radius: 12px;
+  padding: 14px 12px 12px;
+}
+.aw-ico {
+  width: 28px; height: 28px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px; font-size: 14px;
+}
+.aw-num {
+  font-size: 30px; font-weight: 700;
+  letter-spacing: -1px; color: var(--ios-label); line-height: 1;
+}
+.aw-lbl {
+  font-size: 11px; color: var(--ios-label2); margin-top: 3px; line-height: 1.3;
+}
+
+/* ── App Usage ── */
+.app-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px;
+  position: relative;
+}
+.app-row + .app-row::before {
+  content: '';
+  position: absolute; top: 0; left: 64px; right: 0;
+  height: 0.5px; background: var(--ios-sep-inset);
+}
+.app-ico {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 22px;
+}
+.app-info { flex: 1; min-width: 0; }
+.app-name { font-size: 16px; color: var(--ios-label); }
+.break-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11.5px; color: var(--ios-green); margin-top: 1px;
+}
+.app-right { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
+.dur { font-size: 16px; color: var(--ios-label); font-variant-numeric: tabular-nums; }
+.dur.dim { color: var(--ios-label3); }
+.blocked-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: 600; color: var(--ios-green);
+  background: rgba(52,199,89,0.12);
+  padding: 2px 7px; border-radius: 20px; margin-top: 2px;
+}
+
+/* App icon backgrounds */
+.ico-insta { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+.ico-tiktok { background: #010101; }
+.ico-x      { background: #000; }
+.ico-hbo    { background: #1C0832; }
+
+/* ── Tab Bar ── */
+.tabbar {
+  height: 83px; flex-shrink: 0;
+  background: rgba(242,242,247,0.92);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-top: 0.5px solid var(--ios-sep);
+  display: flex; align-items: flex-start; justify-content: space-around;
+  padding-top: 10px;
+}
+.tab-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 0 16px; cursor: pointer; min-width: 56px;
+}
+.tab-icon { font-size: 24px; line-height: 1; }
+.tab-lbl { font-size: 10px; font-weight: 500; color: var(--ios-gray); }
+.tab-item.active .tab-lbl { color: var(--phl-blue); }
+
+/* ── Paywall half-sheet overlay ── */
+.overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0); z-index: 50;
+  display: flex; flex-direction: column;
+  pointer-events: none;
+  transition: background 0.3s;
+}
+.overlay.visible {
+  background: rgba(0,0,0,0.4);
+  pointer-events: all;
+}
+.sheet {
+  margin-top: auto;
+  background: var(--ios-card);
+  border-radius: 20px 20px 0 0;
+  padding: 0 24px 44px;
+  transform: translateY(100%);
+  transition: transform 0.38s cubic-bezier(0.32,0.72,0,1);
+}
+.overlay.visible .sheet {
+  transform: translateY(0);
+}
+.sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--ios-gray3);
+  margin: 10px auto 24px;
+}
+.sheet-lock {
+  width: 52px; height: 52px;
+  background: rgba(255,149,0,0.12);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  margin: 0 auto 16px;
+}
+.sheet-title {
+  font-size: 20px; font-weight: 700;
+  letter-spacing: -0.4px; color: var(--ios-label);
+  text-align: center; margin-bottom: 8px;
+}
+.sheet-desc {
+  font-size: 14px; color: var(--ios-label2);
+  text-align: center; line-height: 1.5;
+  margin-bottom: 26px;
+}
+.sheet-cta {
+  width: 100%;
+  background: var(--phl-blue);
+  color: white; font-size: 17px; font-weight: 600;
+  border: none; border-radius: 14px;
+  padding: 15px; cursor: pointer; font-family: inherit;
+  margin-bottom: 12px;
+  transition: opacity 0.15s;
+}
+.sheet-cta:active { opacity: 0.85; }
+.sheet-dismiss {
+  display: block; width: 100%; text-align: center;
+  font-size: 16px; color: var(--ios-label2);
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; padding: 6px;
+}
+
+/* Bottom padding for scroll */
+.scroll-bottom { height: 32px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="btn-power"></div>
+  <div class="btn-silent"></div>
+  <div class="btn-vol1"></div>
+  <div class="btn-vol2"></div>
+
+  <div class="phone-shell">
+  <div class="screen">
+    <div class="di"></div>
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <span class="sb-time">9:41</span>
+      <div class="sb-icons">
+        <div class="sig">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+          <path d="M8 2.4C10.12 2.4 12.03 3.27 13.42 4.69L14.84 3.27C13.07 1.47 10.67 0.4 8 0.4C5.33 0.4 2.93 1.47 1.16 3.27L2.58 4.69C3.97 3.27 5.88 2.4 8 2.4Z" fill="black"/>
+          <path d="M8 5.6C9.24 5.6 10.37 6.09 11.21 6.9L12.63 5.48C11.41 4.29 9.79 3.6 8 3.6C6.21 3.6 4.59 4.29 3.37 5.48L4.79 6.9C5.63 6.09 6.76 5.6 8 5.6Z" fill="black"/>
+          <circle cx="8" cy="10" r="1.6" fill="black"/>
+        </svg>
+        <div class="batt">
+          <div class="batt-b"><div class="batt-f"></div></div>
+          <div class="batt-t"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav bar -->
+    <div class="navbar">
+      <span class="nav-title">Screen Time</span>
+      <span class="v2-badge">v2</span>
+    </div>
+
+    <!-- Scroll view -->
+    <div class="scrollview">
+    <div class="content">
+
+      <!-- ── Chart card ── -->
+      <div class="card">
+
+        <!-- Header numbers -->
+        <div class="chart-top">
+          <div class="big-time">2h 34m</div>
+          <div class="big-sub">Screen Time · Today</div>
+          <div class="peak-line">
+            <span class="peak-dot"></span>
+            Peak: 12–1pm
+          </div>
+        </div>
+
+        <!-- Hourly bar chart -->
+        <div class="chart-wrap">
+          <div class="bars-container" id="bars"></div>
+          <div class="x-axis" id="xlabels"></div>
+        </div>
+
+        <!-- Segmented control -->
+        <div class="seg-wrap" style="margin-top:10px;">
+          <button class="seg active" onclick="selectSeg(this,'Today','chart')">Today</button>
+          <button class="seg locked" onclick="openPaywall('week','chart')">
+            Week <span class="pro-badge">PRO</span>
+          </button>
+          <button class="seg locked" onclick="openPaywall('month','chart')">
+            Month <span class="pro-badge">PRO</span>
+          </button>
+          <button class="seg locked" onclick="openPaywall('year','chart')">
+            Year <span class="pro-badge">PRO</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Your Awareness ── -->
+      <div class="sec-head">Your Awareness</div>
+
+      <!-- Awareness segmented control -->
+      <div class="seg-wrap-sm">
+        <button class="seg-sm active" onclick="selectSeg(this,'Today','awareness')">Today</button>
+        <button class="seg-sm locked" onclick="openPaywall('week','awareness')">
+          Week <span class="lock-icon">🔒</span>
+        </button>
+        <button class="seg-sm locked" onclick="openPaywall('month','awareness')">
+          Month <span class="lock-icon">🔒</span>
+        </button>
+        <button class="seg-sm locked" onclick="openPaywall('year','awareness')">
+          Year <span class="lock-icon">🔒</span>
+        </button>
+      </div>
+
+      <!-- Awareness cards -->
+      <div class="aw-row">
+        <div class="aw-card">
+          <div class="aw-ico" style="background:rgba(52,199,89,0.12)">🌿</div>
+          <div class="aw-num">3</div>
+          <div class="aw-lbl">Breaks<br>taken</div>
+        </div>
+        <div class="aw-card">
+          <div class="aw-ico" style="background:rgba(10,132,255,0.10)">🙅</div>
+          <div class="aw-num">5</div>
+          <div class="aw-lbl">Never-<br>mind</div>
+        </div>
+        <div class="aw-card">
+          <div class="aw-ico" style="background:rgba(175,82,222,0.10)">🫁</div>
+          <div class="aw-num">8</div>
+          <div class="aw-lbl">Breathing<br>sessions</div>
+        </div>
+      </div>
+
+      <!-- ── App Usage ── -->
+      <div class="sec-head" style="margin-top:4px;">App Usage</div>
+
+      <div class="card">
+        <!-- Instagram -->
+        <div class="app-row">
+          <div class="app-ico ico-insta">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <rect x="2" y="2" width="20" height="20" rx="5" stroke="white" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="4.5" stroke="white" stroke-width="1.8"/>
+              <circle cx="17.5" cy="6.5" r="1.2" fill="white"/>
+            </svg>
+          </div>
+          <div class="app-info">
+            <div class="app-name">Instagram</div>
+            <div class="break-tag">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1v5l3 2" stroke="#34C759" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              10m break time
+            </div>
+          </div>
+          <div class="app-right">
+            <span class="dur">25m</span>
+          </div>
+        </div>
+
+        <!-- TikTok -->
+        <div class="app-row">
+          <div class="app-ico ico-tiktok">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+              <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.01a8.16 8.16 0 004.78 1.52V7.1a4.85 4.85 0 01-1.01-.41z"/>
+            </svg>
+          </div>
+          <div class="app-info">
+            <div class="app-name" style="color:var(--ios-label2)">TikTok</div>
+          </div>
+          <div class="app-right">
+            <span class="dur dim">0m</span>
+            <span class="blocked-badge">
+              <svg width="9" height="9" viewBox="0 0 10 10" fill="#34C759">
+                <path d="M2 5l2.5 2.5L8 3" stroke="#34C759" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+              Blocked
+            </span>
+          </div>
+        </div>
+
+        <!-- X -->
+        <div class="app-row">
+          <div class="app-ico ico-x">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835-8.162-10.665h5.136l4.258 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+            </svg>
+          </div>
+          <div class="app-info">
+            <div class="app-name">X</div>
+            <div class="break-tag">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1v5l3 2" stroke="#34C759" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              5m break time
+            </div>
+          </div>
+          <div class="app-right">
+            <span class="dur">13m</span>
+          </div>
+        </div>
+
+        <!-- HBO Max -->
+        <div class="app-row">
+          <div class="app-ico ico-hbo" style="font-size:11px; font-weight:700; color:#C8A9FA; letter-spacing:-0.5px;">MAX</div>
+          <div class="app-info">
+            <div class="app-name">HBO Max</div>
+          </div>
+          <div class="app-right">
+            <span class="dur">48m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-bottom"></div>
+    </div><!-- /content -->
+    </div><!-- /scrollview -->
+
+    <!-- Tab bar -->
+    <div class="tabbar">
+      <div class="tab-item">
+        <div class="tab-icon">⏱️</div>
+        <span class="tab-lbl">Session</span>
+      </div>
+      <div class="tab-item active">
+        <div class="tab-icon" style="color:var(--phl-blue)">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <rect x="3" y="16" width="4" height="9" rx="1.5" fill="#0A84FF"/>
+            <rect x="9" y="11" width="4" height="14" rx="1.5" fill="#0A84FF"/>
+            <rect x="15" y="6" width="4" height="19" rx="1.5" fill="#0A84FF"/>
+            <rect x="21" y="10" width="4" height="15" rx="1.5" fill="#0A84FF"/>
+          </svg>
+        </div>
+        <span class="tab-lbl" style="color:var(--phl-blue)">Screen Time</span>
+      </div>
+      <div class="tab-item">
+        <div class="tab-icon">⚙️</div>
+        <span class="tab-lbl">Settings</span>
+      </div>
+    </div>
+
+    <!-- Paywall overlay -->
+    <div class="overlay" id="overlay" onclick="closePaywall(event)">
+      <div class="sheet" id="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <div class="sheet-lock">🔒</div>
+        <div class="sheet-title" id="sheet-title">See your 7-day history</div>
+        <div class="sheet-desc" id="sheet-desc">Unlock weekly trends, monthly patterns, and your personal usage zones with Phoneless Pro.</div>
+        <button class="sheet-cta">Unlock Pro</button>
+        <button class="sheet-dismiss" onclick="closePaywall(null)">Not Now</button>
+      </div>
+    </div>
+
+  </div><!-- /screen -->
+  </div><!-- /phone-shell -->
+</div><!-- /phone -->
+
+<script>
+// ── Hourly bar chart ──────────────────────────────────────────
+const hourlyData = [
+  { label: '7am', val: 3,  show: true },
+  { label: '8',   val: 8,  show: false },
+  { label: '9',   val: 12, show: false },
+  { label: '10',  val: 15, show: true },
+  { label: '11',  val: 18, show: false },
+  { label: '12',  val: 28, show: true,  isPeak: true },
+  { label: '1',   val: 22, show: false },
+  { label: '2',   val: 14, show: false },
+  { label: '3',   val: 10, show: false },
+  { label: '4',   val: 8,  show: true },
+  { label: '5',   val: 7,  show: false },
+  { label: '6',   val: 4,  show: false },
+  { label: '7pm', val: 5,  show: true },
+];
+
+const maxVal = Math.max(...hourlyData.map(d => d.val));
+const barsEl = document.getElementById('bars');
+const xlabelsEl = document.getElementById('xlabels');
+
+hourlyData.forEach(d => {
+  const pct = d.val / maxVal;
+
+  const col = document.createElement('div');
+  col.className = 'bar-col';
+
+  const bar = document.createElement('div');
+  bar.className = 'bar' + (d.isPeak ? ' peak' : '');
+  bar.style.height = (pct * 100) + '%';
+  col.appendChild(bar);
+  barsEl.appendChild(col);
+
+  const lbl = document.createElement('div');
+  lbl.className = 'x-lbl' + (d.show ? (d.isPeak ? ' peak-lbl' : ' show') : '');
+  lbl.textContent = d.show ? d.label : '';
+  xlabelsEl.appendChild(lbl);
+});
+
+// ── Paywall ───────────────────────────────────────────────────
+const paywallContent = {
+  week:  { title: 'See your 7-day history',    desc: 'Spot usage patterns across the week and track how your screen time changes day by day.' },
+  month: { title: 'Track your monthly trends', desc: 'See how your habits evolve over a month and compare your best and worst weeks.' },
+  year:  { title: 'Your year at a glance',      desc: 'Watch your long-term progress and see how far you\'ve come since starting Phoneless.' },
+};
+
+const paywallAwareness = {
+  week:  { title: 'Week awareness trends',     desc: 'See how many Breaks, Nevermind moments, and Breathing sessions you had this week.' },
+  month: { title: 'Monthly awareness data',    desc: 'Track your awareness score over a full month and find your streaks of mindful days.' },
+  year:  { title: 'Yearly awareness overview', desc: 'Your Phoneless journey over a year — your rarest and most mindful periods, all in one view.' },
+};
+
+function openPaywall(period, context) {
+  const data = context === 'awareness' ? paywallAwareness[period] : paywallContent[period];
+  document.getElementById('sheet-title').textContent = data.title;
+  document.getElementById('sheet-desc').textContent = data.desc;
+  const overlay = document.getElementById('overlay');
+  overlay.classList.add('visible');
+}
+
+function closePaywall(e) {
+  document.getElementById('overlay').classList.remove('visible');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phoneless — Screen Time</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background: #D1D5DB;
+  background-image:
+    radial-gradient(ellipse 70% 55% at 15% 8%,  rgba(190,205,245,0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 85% 92%,  rgba(190,225,200,0.40) 0%, transparent 50%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── iOS system color tokens ── */
+:root {
+  --ios-bg:          #F2F2F7;
+  --ios-card:        #FFFFFF;
+  --ios-label:       #000000;
+  --ios-label2:      rgba(60,60,67,0.60);
+  --ios-label3:      rgba(60,60,67,0.30);
+  --ios-sep:         rgba(60,60,67,0.29);
+  --ios-sep-inset:   rgba(60,60,67,0.18);
+  --ios-fill:        rgba(120,120,128,0.20);
+  --ios-fill2:       rgba(120,120,128,0.16);
+  --ios-blue:        #007AFF;
+  --ios-green:       #34C759;
+  --ios-red:         #FF3B30;
+  --ios-orange:      #FF9500;
+  --ios-purple:      #AF52DE;
+  --ios-gray:        #8E8E93;
+  --ios-gray2:       #AEAEB2;
+  --ios-gray3:       #C7C7CC;
+}
+
+/* ── iPhone Frame ── */
+.phone { position: relative; width: 393px; flex-shrink: 0; }
+
+.phone-shell {
+  background: linear-gradient(158deg, #434345 0%, #1C1C1E 38%, #2C2C2E 100%);
+  border-radius: 54px; padding: 13px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.09),
+    0 0 0 1.5px #0d0d0d,
+    0 48px 96px rgba(0,0,0,0.55),
+    0 20px 40px rgba(0,0,0,0.32);
+}
+
+.btn-power { position:absolute; right:-3.5px; top:162px; width:3.5px; height:70px;
+  background:#252527; border-radius:0 3px 3px 0; }
+.btn-silent { position:absolute; left:-3.5px; top:90px; width:3.5px; height:22px;
+  background:#252527; border-radius:3px 0 0 3px; }
+.btn-vol1   { position:absolute; left:-3.5px; top:122px; width:3.5px; height:36px;
+  background:#252527; border-radius:3px 0 0 3px; }
+.btn-vol2   { position:absolute; left:-3.5px; top:172px; width:3.5px; height:68px;
+  background:#252527; border-radius:3px 0 0 3px; }
+
+/* ── Screen ── */
+.screen {
+  background: var(--ios-bg);
+  border-radius: 44px;
+  overflow: hidden;
+  height: 852px;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+
+/* Dynamic Island */
+.di {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  width: 122px; height: 36px; background: #0A0A0A;
+  border-radius: 20px; z-index: 30;
+}
+
+/* ── Status bar ── */
+.statusbar {
+  height: 59px; flex-shrink: 0;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 28px 10px;
+  position: relative; z-index: 20;
+}
+
+.sb-time { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; color: var(--ios-label); }
+
+.sb-icons { display: flex; align-items: center; gap: 7px; }
+
+.sig { display: flex; align-items: flex-end; gap: 2px; }
+.sig span { display: block; width: 3px; background: var(--ios-label); border-radius: 1px; }
+.sig span:nth-child(1) { height: 4px; }
+.sig span:nth-child(2) { height: 7px; }
+.sig span:nth-child(3) { height: 10px; }
+.sig span:nth-child(4) { height: 13px; opacity: 0.35; }
+
+.batt { display: flex; align-items: center; gap: 1.5px; }
+.batt-b { width: 25px; height: 12px; border-radius: 3.5px;
+  border: 1.5px solid rgba(0,0,0,0.35); padding: 1.5px; }
+.batt-f { height: 100%; width: 70%; background: var(--ios-label); border-radius: 1.5px; }
+.batt-t { width: 2px; height: 5px; background: rgba(0,0,0,0.32); border-radius: 0 1px 1px 0; }
+
+/* ── Sticky nav bar ── */
+.navbar {
+  position: sticky; top: 0; z-index: 20; flex-shrink: 0;
+  background: rgba(242,242,247,0.88);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 0.5px solid var(--ios-sep);
+  padding: 8px 16px 12px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+
+.nav-title {
+  font-size: 34px; font-weight: 700;
+  letter-spacing: -0.6px; color: var(--ios-label); line-height: 1;
+}
+
+.today-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--ios-fill2);
+  border: none; border-radius: 20px;
+  padding: 6px 12px; cursor: pointer;
+  font-size: 14px; font-weight: 500; color: var(--ios-label);
+  font-family: inherit; margin-bottom: 2px;
+  transition: background .15s;
+}
+.today-btn:active { background: var(--ios-fill); }
+
+/* ── Scroll area ── */
+.scrollview {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.scrollview::-webkit-scrollbar { display: none; }
+
+.content { padding: 16px 16px 0; }
+
+/* ── Cards (inset grouped style) ── */
+.card {
+  background: var(--ios-card);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+/* ── Chart card ── */
+.chart-top { padding: 18px 20px 12px; }
+
+.big-time {
+  font-size: 40px; font-weight: 700;
+  letter-spacing: -1.5px; color: var(--ios-label);
+  line-height: 1; font-variant-numeric: tabular-nums;
+}
+.big-sub {
+  font-size: 13px; color: var(--ios-label2); margin-top: 3px;
+}
+.big-delta {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 7px;
+  font-size: 13px; font-weight: 500; color: #34C759;
+}
+
+.chart-area { padding: 0 14px 6px; }
+
+/* Zone legend */
+.zone-legend {
+  display: flex; gap: 16px;
+  padding: 9px 20px 11px;
+  border-top: 0.5px solid var(--ios-sep-inset);
+}
+.zl { display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--ios-label2); }
+.zldot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* ── iOS Segmented Control ── */
+.seg-ctrl {
+  display: flex; padding: 4px;
+  border-top: 0.5px solid var(--ios-sep-inset);
+  background: var(--ios-card);
+}
+.seg {
+  flex: 1; text-align: center;
+  border: none; background: none; border-radius: 7px;
+  padding: 6.5px 0; cursor: pointer;
+  font-size: 13px; font-weight: 400; color: var(--ios-label2);
+  font-family: inherit;
+  transition: color .15s;
+  position: relative;
+}
+.seg.active {
+  background: var(--ios-card);
+  color: var(--ios-label);
+  font-weight: 600;
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.1);
+}
+/* Wrap all segs in a tinted bg */
+.seg-wrap {
+  display: flex; padding: 2px;
+  margin: 4px 8px 8px;
+  background: rgba(118,118,128,0.12);
+  border-radius: 9px;
+  border-top: 0.5px solid var(--ios-sep-inset);
+}
+.seg-wrap .seg { border-radius: 7px; }
+.seg-wrap .seg.active { background: white; }
+
+/* ── Section headers ── */
+.sec-head {
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -0.4px; color: var(--ios-label);
+  margin: 4px 0 12px;
+}
+
+/* ── Awareness cards ── */
+.aw-row { display: flex; gap: 12px; margin-bottom: 20px; }
+
+.aw-card {
+  flex: 1; background: var(--ios-card); border-radius: 12px;
+  padding: 14px 12px 14px;
+}
+.aw-ico {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.aw-num {
+  font-size: 28px; font-weight: 700;
+  letter-spacing: -0.8px; color: var(--ios-label); line-height: 1;
+}
+.aw-lbl {
+  font-size: 11px; color: var(--ios-label2); margin-top: 3px; line-height: 1.3;
+}
+
+/* ── App list (inset separator) ── */
+.app-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px;
+  position: relative;
+}
+/* Inset separator: starts after the icon (12px gap + 40px icon + 12px = 64px) */
+.app-row + .app-row::before {
+  content: '';
+  position: absolute; top: 0; left: 64px; right: 0;
+  height: 0.5px; background: var(--ios-sep-inset);
+}
+
+.app-ico {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; overflow: hidden;
+}
+.app-info { flex: 1; min-width: 0; }
+.app-name { font-size: 16px; font-weight: 400; color: var(--ios-label); }
+.app-name.dim { color: var(--ios-label2); }
+
+.break-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 12px; color: #34C759; margin-top: 1px;
+}
+.app-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.dur { font-size: 16px; font-weight: 400; color: var(--ios-label); font-variant-numeric: tabular-nums; }
+.dur.dim { color: var(--ios-label3); }
+
+.blocked-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: 600; color: #34C759;
+  background: rgba(52,199,89,0.12);
+  padding: 3px 7px; border-radius: 20px;
+}
+
+
+/* ── Tab Bar ── */
+.tabbar {
+  height: 83px; flex-shrink: 0;
+  background: rgba(242,242,247,0.92);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-top: 0.5px solid var(--ios-sep);
+  display: flex; align-items: flex-start; justify-content: space-around;
+  padding-top: 10px;
+}
+
+.tab-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 0 20px; cursor: pointer;
+  min-width: 60px;
+}
+.tab-icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+}
+.tab-lbl { font-size: 10px; font-weight: 500; }
+.tab-item.active .tab-lbl { color: var(--ios-blue); }
+.tab-item.inactive .tab-lbl { color: var(--ios-gray); }
+.tab-item.inactive .tab-icon svg { opacity: 0.45; }
+
+/* Home indicator */
+.home-indicator {
+  height: 34px; display: flex; align-items: center; justify-content: center;
+}
+.home-bar { width: 134px; height: 5px; background: var(--ios-label); border-radius: 3px; opacity: 0.18; }
+
+/* ── Chart bar animations ── */
+@keyframes bar-rise {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+.cbar {
+  transform-box: fill-box; transform-origin: center bottom;
+  animation: bar-rise .5s cubic-bezier(.34,1.3,.64,1) both;
+}
+/* animation-delay set inline by JS per bar */
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.aw-card { animation: fade-up .38s ease both; }
+.aw-card:nth-child(1) { animation-delay:.5s }
+.aw-card:nth-child(2) { animation-delay:.56s }
+.aw-card:nth-child(3) { animation-delay:.62s }
+
+.app-row { animation: fade-up .32s ease both; }
+.app-row:nth-child(1) { animation-delay:.65s }
+.app-row:nth-child(2) { animation-delay:.70s }
+.app-row:nth-child(3) { animation-delay:.75s }
+.app-row:nth-child(4) { animation-delay:.80s }
+
+
+@keyframes num-pop {
+  0%   { transform:scale(.5); opacity:0; }
+  70%  { transform:scale(1.1); }
+  100% { transform:scale(1); opacity:1; }
+}
+.aw-num { animation: num-pop .45s cubic-bezier(.34,1.56,.64,1) .65s both; }
+
+/* ── Pro Badge ── */
+.pro-badge {
+  display: inline-flex; align-items: center;
+  font-size: 8px; font-weight: 700; color: #FF9500;
+  background: rgba(255,149,0,.15);
+  padding: 1.5px 4px; border-radius: 4px;
+  letter-spacing: 0.4px; vertical-align: middle;
+  margin-left: 3px; line-height: 1.4;
+}
+.seg.locked { color: var(--ios-label3); }
+.seg.locked .pro-badge { opacity: 0.9; }
+
+/* ── Awareness Period Switcher ── */
+.aw-switcher {
+  display: flex; gap: 5px; margin-bottom: 12px;
+}
+.aw-seg {
+  flex: 1; text-align: center;
+  border: none; background: rgba(118,118,128,.10);
+  border-radius: 8px; padding: 6px 4px;
+  font-size: 11.5px; font-weight: 500; color: var(--ios-label2);
+  font-family: inherit; cursor: pointer;
+  transition: background .15s, color .15s;
+  display: flex; align-items: center; justify-content: center; gap: 2px;
+}
+.aw-seg.active {
+  background: var(--ios-blue); color: white;
+}
+.aw-seg .aw-lock {
+  font-size: 9px; opacity: 0.6;
+}
+
+/* ── Paywall Overlay + Sheet ── */
+.paywall-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.42);
+  z-index: 50; opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.paywall-overlay.visible { opacity: 1; pointer-events: all; }
+
+.paywall-sheet {
+  position: fixed; left: 50%; bottom: 0;
+  transform: translateX(-50%) translateY(104%);
+  width: 393px; max-width: 100%;
+  background: white; border-radius: 20px 20px 0 0;
+  padding: 12px 24px 50px;
+  z-index: 51;
+  transition: transform .32s cubic-bezier(.32,1,.23,1);
+  text-align: center;
+}
+.paywall-sheet.visible { transform: translateX(-50%) translateY(0); }
+
+.paywall-handle {
+  width: 36px; height: 4px; background: var(--ios-gray3);
+  border-radius: 2px; margin: 0 auto 22px;
+}
+.paywall-lock-wrap {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: rgba(255,149,0,.12);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.paywall-title {
+  font-size: 20px; font-weight: 700; color: var(--ios-label);
+  letter-spacing: -0.4px; margin-bottom: 8px;
+}
+.paywall-body {
+  font-size: 15px; color: var(--ios-label2); line-height: 1.5;
+  margin-bottom: 28px;
+}
+.paywall-cta {
+  display: block; width: 100%;
+  background: #FF9500; border: none;
+  border-radius: 14px; padding: 16px;
+  font-size: 17px; font-weight: 600; color: white;
+  font-family: inherit; cursor: pointer; margin-bottom: 12px;
+  transition: opacity .15s;
+}
+.paywall-cta:active { opacity: .8; }
+.paywall-dismiss {
+  display: block; width: 100%;
+  background: none; border: none;
+  font-size: 15px; font-weight: 500;
+  color: var(--ios-label2); font-family: inherit;
+  cursor: pointer; padding: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+<div class="phone-shell">
+
+  <!-- hardware buttons -->
+  <div class="btn-silent"></div>
+  <div class="btn-vol1"></div>
+  <div class="btn-vol2"></div>
+  <div class="btn-power"></div>
+
+  <div class="screen">
+    <div class="di"></div>
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <span class="sb-time">9:41</span>
+      <div class="sb-icons">
+        <div class="sig"><span></span><span></span><span></span><span></span></div>
+        <!-- wifi -->
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+          <path d="M8 9.5L10.5 7a3.5 3.5 0 0 0-5 0L8 9.5z" fill="#000"/>
+          <path d="M8 9.5L12 5.5a5.7 5.7 0 0 0-8 0L8 9.5z" fill="#000" opacity=".5"/>
+          <path d="M8 9.5L14 3.5a8 8 0 0 0-12 0L8 9.5z" fill="#000" opacity=".25"/>
+          <circle cx="8" cy="11" r="1.2" fill="#000"/>
+        </svg>
+        <div class="batt">
+          <div class="batt-b"><div class="batt-f"></div></div>
+          <div class="batt-t"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky nav bar -->
+    <div class="navbar">
+      <div class="nav-title">Screen Time</div>
+      <button class="today-btn" id="period-btn" onclick="onPeriodBtnClick()">
+        <span id="nav-period-label">This Week</span>
+        <svg width="11" height="7" viewBox="0 0 11 7" fill="none">
+          <path d="M1 1.5l4.5 4 4.5-4" stroke="#000" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scrollable area -->
+    <div class="scrollview">
+      <div class="content">
+
+        <!-- ══ Chart Card ══ -->
+        <div class="card">
+          <div class="chart-top">
+            <div class="big-time" id="big-time">2h 34m</div>
+            <div class="big-sub" id="big-sub">Screen Time Today</div>
+            <div class="big-delta" id="big-delta">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" id="delta-icon">
+                <path d="M5 8V2M2 5l3-3 3 3" stroke="#34C759" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span id="delta-text">28m less than yesterday</span>
+            </div>
+          </div>
+
+          <div class="chart-area">
+            <!--
+              SVG chart  viewBox="0 0 332 154"
+              Bar zone:  y 8..134  (126px)   labels y 150
+              Max 165min  → scale 126/165 = 0.764 px/min
+              High ≥130   → y_high = 134 − 130×0.764 = 134 − 99.3 = 34.7 ≈ 35
+              Low  ≤ 85   → y_low  = 134 −  85×0.764 = 134 − 64.9 = 69.1 ≈ 69
+              Baseline 108 → y_base = 134 − 108×0.764 = 134 − 82.5 = 51.5 ≈ 52
+
+              7 bars, gap 7:  7w+6×7=332 → 7w=290 → w≈41.4→41  gap=7.7→8
+              x:  0, 49, 98, 147, 196, 245, 294
+
+              Bar h/y:
+               Mon 95  → h=73 y=61  normal
+               Tue 140 → h=107 y=27 high
+               Wed 72  → h=55 y=79  low
+               Thu 110 → h=84 y=50  normal
+               Fri 88  → h=67 y=67  normal
+               Sat 165 → h=126 y=8  high
+               Sun 154 → h=118 y=16 high TODAY
+            -->
+            <svg width="100%" viewBox="0 0 332 154" fill="none" overflow="visible">
+              <defs>
+                <linearGradient id="todayGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stop-color="#FF3B30" stop-opacity="1"/>
+                  <stop offset="100%" stop-color="#FF6B3D" stop-opacity="0.85"/>
+                </linearGradient>
+                <linearGradient id="highGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stop-color="#FF3B30" stop-opacity="0.50"/>
+                  <stop offset="100%" stop-color="#FF3B30" stop-opacity="0.32"/>
+                </linearGradient>
+                <linearGradient id="normGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stop-color="#34C759" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#34C759" stop-opacity="0.32"/>
+                </linearGradient>
+                <linearGradient id="lowGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stop-color="#007AFF" stop-opacity="0.50"/>
+                  <stop offset="100%" stop-color="#007AFF" stop-opacity="0.28"/>
+                </linearGradient>
+              </defs>
+
+              <g id="chart-dynamic"></g>
+            </svg>
+          </div>
+
+          <!-- Zone legend -->
+          <div class="zone-legend">
+            <div class="zl"><div class="zldot" style="background:#FF3B30;opacity:.8"></div>High</div>
+            <div class="zl"><div class="zldot" style="background:#34C759;opacity:.8"></div>Normal</div>
+            <div class="zl"><div class="zldot" style="background:#007AFF;opacity:.8"></div>Low</div>
+          </div>
+
+          <!-- iOS Segmented Control -->
+          <div class="seg-wrap">
+            <button class="seg active" onclick="setSeg(this,'week')">Week</button>
+            <button class="seg locked" onclick="setSeg(this,'month')">Month<span class="pro-badge">PRO</span></button>
+            <button class="seg locked" onclick="setSeg(this,'year')">Year<span class="pro-badge">PRO</span></button>
+          </div>
+
+        </div><!-- /chart card -->
+
+        <!-- ══ Your Awareness ══ -->
+        <div class="sec-head">Your Awareness</div>
+
+        <!-- Period switcher: Today free, rest locked for Free tier -->
+        <div class="aw-switcher">
+          <button class="aw-seg active" onclick="setAwSeg(this,'today')">Today</button>
+          <button class="aw-seg" onclick="setAwSeg(this,'week')">Week <span class="aw-lock">🔒</span></button>
+          <button class="aw-seg" onclick="setAwSeg(this,'month')">Month <span class="aw-lock">🔒</span></button>
+          <button class="aw-seg" onclick="setAwSeg(this,'year')">Year <span class="aw-lock">🔒</span></button>
+        </div>
+
+        <div class="aw-row">
+
+          <div class="aw-card">
+            <div class="aw-ico" style="background:rgba(52,199,89,.12)">
+              <!-- cup -->
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <path d="M3 5h11v7a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V5z" stroke="#34C759" stroke-width="1.6"/>
+                <path d="M14 7h1.5A2 2 0 0 1 17 9v0a2 2 0 0 1-2 2H14" stroke="#34C759" stroke-width="1.6" stroke-linecap="round"/>
+                <line x1="7" y1="17" x2="7"  y2="19" stroke="#34C759" stroke-width="1.6" stroke-linecap="round"/>
+                <line x1="10" y1="17" x2="10" y2="19" stroke="#34C759" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="aw-num">3</div>
+            <div class="aw-lbl">Breaks<br>Taken</div>
+          </div>
+
+          <div class="aw-card">
+            <div class="aw-ico" style="background:rgba(0,122,255,.11)">
+              <!-- hand raise -->
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2v8M7 4v6M4 6.5V12a6 6 0 0 0 12 0V7.5" stroke="#007AFF" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M13 4.5v5.5M16 7v4" stroke="#007AFF" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="aw-num">5</div>
+            <div class="aw-lbl">Nevermind</div>
+          </div>
+
+          <div class="aw-card">
+            <div class="aw-ico" style="background:rgba(175,82,222,.10)">
+              <!-- breathing wave -->
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <path d="M1 10c1.5-4 3-4 4.5 0s3 4 4.5 0 3-4 4.5 0S16 14 17.5 10 19 6 20 6" stroke="#AF52DE" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="aw-num">8</div>
+            <div class="aw-lbl">Breathing<br>Sessions</div>
+          </div>
+
+        </div>
+
+        <!-- ══ App Usage ══ -->
+        <div class="sec-head">App Usage</div>
+        <div class="card" style="margin-bottom:32px">
+
+          <!-- 1. Max — 48m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:#000">
+              <svg width="22" height="14" viewBox="0 0 28 16" fill="none">
+                <text x="1" y="13" font-size="13" font-weight="800" fill="white" font-family="Georgia,serif">HBO</text>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">Max</div></div>
+            <div class="app-right">
+              <div class="dur">48m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 2. YouTube — 42m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center">
+              <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+                <rect x="0" y="0" width="22" height="16" rx="4" fill="#FF0000"/>
+                <path d="M9 5l7 3.5L9 12V5z" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-info">
+              <div class="app-name">YouTube</div>
+              <div class="break-tag">
+                <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+                  <path d="M3 5h11v7a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V5z" stroke="#34C759" stroke-width="1.7"/>
+                  <path d="M14 7h1.5A2 2 0 0 1 17 9v0a2 2 0 0 1-2 2H14" stroke="#34C759" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+                15m break
+              </div>
+            </div>
+            <div class="app-right">
+              <div class="dur">42m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 3. Safari — 35m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:linear-gradient(145deg,#1a8cf8,#0af)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.5"/>
+                <line x1="12" y1="3" x2="12" y2="21" stroke="white" stroke-width="1" opacity=".4"/>
+                <line x1="3" y1="12" x2="21" y2="12" stroke="white" stroke-width="1" opacity=".4"/>
+                <path d="M16 8l-5 3-3 5 5-3 3-5z" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">Safari</div></div>
+            <div class="app-right">
+              <div class="dur">35m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 4. Spotify — 31m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:#191414">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" fill="#1DB954"/>
+                <path d="M7 9.5c3.3-1 6.5-.8 9 .7" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M7.5 12.5c2.8-.9 5.5-.7 7.5.6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M8 15.5c2.3-.7 4.5-.6 6 .5" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">Spotify</div></div>
+            <div class="app-right">
+              <div class="dur">31m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 5. Instagram — 25m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="white" stroke-width="1.7"/>
+                <circle cx="12" cy="12" r="4.3" stroke="white" stroke-width="1.7"/>
+                <circle cx="17.4" cy="6.6" r="1.1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-info">
+              <div class="app-name">Instagram</div>
+              <div class="break-tag">
+                <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+                  <path d="M3 5h11v7a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V5z" stroke="#34C759" stroke-width="1.7"/>
+                  <path d="M14 7h1.5A2 2 0 0 1 17 9v0a2 2 0 0 1-2 2H14" stroke="#34C759" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+                10m break
+              </div>
+            </div>
+            <div class="app-right">
+              <div class="dur">25m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 6. Telegram — 22m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:linear-gradient(145deg,#2AABEE,#229ED9)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M21 3L3 10.5l6.5 2.5L21 3z" fill="white" opacity=".9"/>
+                <path d="M9.5 13L21 3l-5 16-6.5-6z" fill="white"/>
+                <path d="M9.5 13v6l3.5-3.5" fill="white" opacity=".7"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">Telegram</div></div>
+            <div class="app-right">
+              <div class="dur">22m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 7. Messages — 18m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:linear-gradient(145deg,#34C759,#30b350)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7l-5 4V6a2 2 0 0 1 2-2z" fill="white" opacity=".9"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">Messages</div></div>
+            <div class="app-right">
+              <div class="dur">18m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 8. WhatsApp — 14m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:#25D366">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.6 1.4 5.1L2 22l5-1.4A10 10 0 1 0 12 2z" fill="white" opacity=".9"/>
+                <path d="M8.5 9c0-.5.4-1 .9-1h.6c.3 0 .5.2.6.4l1 2.5c.1.3 0 .7-.3.9l-.5.4c.5 1 1.3 1.8 2.3 2.3l.4-.5c.2-.3.6-.4.9-.3l2.5 1c.3.1.4.4.4.7v.6c0 .5-.4.9-1 .9-4.4 0-8-3.6-8-8z" fill="#25D366"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">WhatsApp</div></div>
+            <div class="app-right">
+              <div class="dur">14m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 9. X — 13m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:#000">
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <path d="M0.5 0.5L9.5 16.5M16.5 0.5L7.5 16.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="app-info">
+              <div class="app-name">X</div>
+              <div class="break-tag">
+                <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+                  <path d="M3 5h11v7a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V5z" stroke="#34C759" stroke-width="1.7"/>
+                  <path d="M14 7h1.5A2 2 0 0 1 17 9v0a2 2 0 0 1-2 2H14" stroke="#34C759" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+                5m break
+              </div>
+            </div>
+            <div class="app-right">
+              <div class="dur">13m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 10. Gmail — 8m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:#fff;border:0.5px solid rgba(0,0,0,0.08)">
+              <svg width="22" height="17" viewBox="0 0 24 18" fill="none">
+                <rect x="1" y="1" width="22" height="16" rx="2" fill="white" stroke="#e0e0e0" stroke-width=".5"/>
+                <path d="M1 3l11 8 11-8" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M1 3v12h4V8l7 5 7-5v7h4V3" fill="#fff"/>
+                <path d="M1 3l11 8 11-8" stroke="#EA4335" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">Gmail</div></div>
+            <div class="app-right">
+              <div class="dur">8m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 11. Photos — 7m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:#fff;border:0.5px solid rgba(0,0,0,0.08)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2l1.5 3.5L17 4l-1.5 3.5L19 9l-3.5.5L12 13l-3.5-3.5L5 9l3.5-1.5L7 4l3.5 1.5L12 2z" fill="#FF9500" opacity=".9"/>
+                <path d="M12 2l1.5 3.5L17 4" fill="#FF3B30" opacity=".6"/>
+                <path d="M12 13l-3.5-3.5L5 9" fill="#34C759" opacity=".6"/>
+                <path d="M7 4l3.5 1.5L12 2" fill="#AF52DE" opacity=".6"/>
+                <path d="M17 4l-1.5 3.5L19 9" fill="#007AFF" opacity=".7"/>
+                <circle cx="12" cy="7.5" r="2.5" fill="white" opacity=".6"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">Photos</div></div>
+            <div class="app-right">
+              <div class="dur">7m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 12. Maps — 5m -->
+          <div class="app-row">
+            <div class="app-ico" style="background:linear-gradient(145deg,#30d158,#34aadc)">
+              <svg width="20" height="22" viewBox="0 0 20 22" fill="none">
+                <path d="M10 1C6.7 1 4 3.7 4 7c0 4.5 6 13 6 13s6-8.5 6-13c0-3.3-2.7-6-6-6z" fill="white" opacity=".9"/>
+                <circle cx="10" cy="7" r="2.5" fill="#34C759"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name">Maps</div></div>
+            <div class="app-right">
+              <div class="dur">5m</div>
+              <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="rgba(60,60,67,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- 13. TikTok — Blocked -->
+          <div class="app-row">
+            <div class="app-ico" style="background:rgba(120,120,128,.1)">
+              <svg width="16" height="19" viewBox="0 0 16 19" fill="none" opacity=".28">
+                <path d="M11 0v10.5a3.5 3.5 0 1 1-2.5-3.35V4a7 7 0 1 0 6 6.5V3.2A8.5 8.5 0 0 0 16 4V1.3A4.5 4.5 0 0 1 11 0z" fill="#1C1C1E"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name dim">TikTok</div></div>
+            <div class="app-right">
+              <div class="dur dim">0m</div>
+              <div class="blocked-badge">
+                <svg width="9" height="11" viewBox="0 0 9 11" fill="none">
+                  <rect x=".75" y="4.75" width="7.5" height="6" rx="1.5" stroke="#34C759" stroke-width="1.5"/>
+                  <path d="M2.5 4.5V3a2 2 0 1 1 4 0v1.5" stroke="#34C759" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Blocked
+              </div>
+            </div>
+          </div>
+
+          <!-- 14. Reddit — Blocked -->
+          <div class="app-row">
+            <div class="app-ico" style="background:rgba(120,120,128,.1)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" opacity=".28">
+                <circle cx="12" cy="12" r="10" fill="#FF4500"/>
+                <circle cx="12" cy="11" r="3.5" fill="white"/>
+                <circle cx="8.5" cy="13.5" r="1.2" fill="#FF4500"/>
+                <circle cx="15.5" cy="13.5" r="1.2" fill="#FF4500"/>
+                <path d="M8.5 16c1 1 6 1 7 0" stroke="#FF4500" stroke-width="1.2" stroke-linecap="round"/>
+                <circle cx="17.5" cy="7" r="1.5" fill="white"/>
+                <path d="M14 9c.8-1.5 2.5-2 3.5-1.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="app-info"><div class="app-name dim">Reddit</div></div>
+            <div class="app-right">
+              <div class="dur dim">0m</div>
+              <div class="blocked-badge">
+                <svg width="9" height="11" viewBox="0 0 9 11" fill="none">
+                  <rect x=".75" y="4.75" width="7.5" height="6" rx="1.5" stroke="#34C759" stroke-width="1.5"/>
+                  <path d="M2.5 4.5V3a2 2 0 1 1 4 0v1.5" stroke="#34C759" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Blocked
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /app card -->
+
+      </div><!-- /content -->
+    </div><!-- /scrollview -->
+
+    <!-- ══ Tab Bar ══ -->
+    <div class="tabbar">
+
+      <!-- Now tab -->
+      <div class="tab-item inactive">
+        <div class="tab-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="4" fill="#8E8E93"/>
+            <circle cx="12" cy="12" r="8" stroke="#8E8E93" stroke-width="1.8"/>
+            <path d="M12 4V2M12 22v-2M4 12H2M22 12h-2M6.34 6.34 4.93 4.93M19.07 19.07l-1.41-1.41M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="tab-lbl">Now</span>
+      </div>
+
+      <!-- Screen Time tab (active) -->
+      <div class="tab-item active">
+        <div class="tab-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="14" width="4" height="7"  rx="1.5" fill="#007AFF"/>
+            <rect x="10" y="9"  width="4" height="12" rx="1.5" fill="#007AFF"/>
+            <rect x="17" y="4"  width="4" height="17" rx="1.5" fill="#007AFF"/>
+          </svg>
+        </div>
+        <span class="tab-lbl">Screen Time</span>
+      </div>
+
+      <!-- Settings tab -->
+      <div class="tab-item inactive">
+        <div class="tab-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="3" stroke="#8E8E93" stroke-width="1.8"/>
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5.64 5.64l1.42 1.42M16.95 16.95l1.41 1.41M5.64 18.36l1.42-1.42M16.95 7.05l1.41-1.41" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="tab-lbl">Settings</span>
+      </div>
+
+    </div><!-- /tabbar -->
+
+    <div class="home-indicator"><div class="home-bar"></div></div>
+
+  </div><!-- /screen -->
+</div><!-- /phone-shell -->
+</div><!-- /phone -->
+
+<script>
+// ── SVG chart dimensions ────────────────────────────────────────────
+const W = 332, TOP = 8, BOT = 134;   // viewBox coords
+const USABLE = BOT - TOP;             // 126px usable bar height
+const HI = 135, LO = 90, BL = 115;   // personal thresholds (min/day)
+
+// ── Data for each period ────────────────────────────────────────────
+const DATA = {
+  week: {
+    total: '2h 34m',
+    sub:   'Screen Time Today',
+    delta: { text: '28m less than yesterday', good: true },
+    todayLbl: '2h 34m',
+    gap: 8,
+    bars: [
+      { l:'Mon', v:95  },
+      { l:'Tue', v:140 },
+      { l:'Wed', v:72  },
+      { l:'Thu', v:110 },
+      { l:'Fri', v:92  },
+      { l:'Sat', v:165 },
+      { l:'Sun', v:154, today:true },
+    ],
+  },
+  month: {
+    total: '2h 18m',
+    sub:   'Daily Avg · February',
+    delta: { text: '22m less than last month', good: true },
+    todayLbl: '2h 13m',
+    gap: 24,
+    bars: [
+      { l:'W1', v:158 },
+      { l:'W2', v:145 },
+      { l:'W3', v:120 },
+      { l:'W4', v:133, today:true },
+    ],
+  },
+  year: {
+    total: '2h 5m',
+    sub:   'Daily Avg · Last 12 Months',
+    delta: { text: '15m less than last year', good: true },
+    todayLbl: '2h 18m',
+    gap: 5,
+    bars: [
+      { l:'Mar', v:155 }, { l:'Apr', v:148 }, { l:'May', v:162 },
+      { l:'Jun', v:142 }, { l:'Jul', v:128 }, { l:'Aug', v:115 },
+      { l:'Sep', v:102 }, { l:'Oct', v:95  }, { l:'Nov', v:86  },
+      { l:'Dec', v:108 }, { l:'Jan', v:128 }, { l:'Feb', v:138, today:true },
+    ],
+  },
+};
+
+// ── Helpers ─────────────────────────────────────────────────────────
+const f = n => n.toFixed(1);
+
+function barFill(v, today) {
+  if (today)   return 'url(#todayGrad)';
+  if (v >= HI) return 'url(#highGrad)';
+  if (v <  LO) return 'url(#lowGrad)';
+  return 'url(#normGrad)';
+}
+
+// ── Main render ──────────────────────────────────────────────────────
+function renderChart(key) {
+  const d    = DATA[key];
+  const bars = d.bars;
+  const n    = bars.length;
+  const bw   = (W - (n - 1) * d.gap) / n;
+  const maxV = Math.max(...bars.map(b => b.v));
+  const sc   = USABLE / (maxV * 1.12);   // 12% headroom at top
+
+  const hY = BOT - HI * sc;
+  const lY = BOT - LO * sc;
+  const bY = BOT - BL * sc;
+  const rx = Math.min(5.5, bw * 0.13);
+  const lfs = n > 9 ? 9 : 10.5;
+
+  let s = '';
+
+  // Zone bands
+  s += `<rect x="0" y="${TOP}" width="${W}" height="${f(hY - TOP)}" rx="3" fill="rgba(255,59,48,.065)"/>`;
+  s += `<rect x="0" y="${f(hY)}" width="${W}" height="${f(lY - hY)}" fill="rgba(52,199,89,.065)"/>`;
+  s += `<rect x="0" y="${f(lY)}" width="${W}" height="${f(BOT - lY)}" rx="3" fill="rgba(0,122,255,.065)"/>`;
+  // Dividers
+  s += `<line x1="0" x2="${W}" y1="${f(hY)}" y2="${f(hY)}" stroke="rgba(255,59,48,.15)" stroke-width=".5"/>`;
+  s += `<line x1="0" x2="${W}" y1="${f(lY)}" y2="${f(lY)}" stroke="rgba(0,122,255,.15)" stroke-width=".5"/>`;
+  // Baseline (dashed, up to ~66% width)
+  const blEnd = W * 0.66;
+  s += `<line x1="0" y1="${f(bY)}" x2="${f(blEnd)}" y2="${f(bY)}" stroke="#8E8E93" stroke-width="1.3" stroke-dasharray="4,3.5" opacity=".45"/>`;
+  s += `<text x="${f(blEnd + 4)}" y="${f(bY - 3)}" font-size="8" fill="#8E8E93" opacity=".6" font-family="-apple-system,system-ui">avg before</text>`;
+
+  // Bars + labels
+  bars.forEach((b, i) => {
+    const x     = i * (bw + d.gap);
+    const bh    = b.v * sc;
+    const by    = BOT - bh;
+    const cx    = x + bw / 2;
+    const delay = (i * 0.05 + 0.05).toFixed(2);
+
+    s += `<rect class="cbar" style="animation-delay:${delay}s" x="${f(x)}" y="${f(by)}" width="${f(bw)}" height="${f(bh)}" rx="${f(rx)}" fill="${barFill(b.v, b.today)}"/>`;
+
+    if (b.today) {
+      s += `<text x="${f(cx)}" y="${f(by - 4)}" text-anchor="middle" font-size="8.5" fill="#FF3B30" font-weight="700" font-family="-apple-system,system-ui">${d.todayLbl}</text>`;
+    }
+
+    const lc = b.today ? '#000' : 'rgba(60,60,67,0.6)';
+    const lw = b.today ? '600' : '400';
+    s += `<text x="${f(cx)}" y="150" text-anchor="middle" font-size="${lfs}" fill="${lc}" font-weight="${lw}" font-family="-apple-system,system-ui">${b.l}</text>`;
+  });
+
+  document.getElementById('chart-dynamic').innerHTML = s;
+
+  // Header
+  document.getElementById('big-time').textContent = d.total;
+  document.getElementById('big-sub').textContent  = d.sub;
+
+  const clr   = d.delta.good ? '#34C759' : '#FF3B30';
+  // ↑ arrow = less usage = good;  ↓ arrow = more usage = bad
+  const arrow = d.delta.good
+    ? 'M5 8V2M2 5l3-3 3 3'
+    : 'M5 2V8M2 5l3 3 3-3';
+
+  document.getElementById('delta-icon').innerHTML =
+    `<path d="${arrow}" stroke="${clr}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  document.getElementById('big-delta').style.color = clr;
+  document.getElementById('delta-text').textContent = d.delta.text;
+}
+
+// ── Navbar period label ───────────────────────────────────────────────
+const PERIOD_LABELS = { week: 'This Week', month: 'Feb 2026', year: '2025' };
+
+function updateNavLabel(key) {
+  document.getElementById('nav-period-label').textContent = PERIOD_LABELS[key];
+}
+
+function onPeriodBtnClick() {
+  // Free tier: tapping the period button shows paywall (can't navigate to past weeks)
+  showPaywall(
+    'Navigate History',
+    'Browse any past week, month, or year — with Phoneless Pro.'
+  );
+}
+
+// ── Segmented control ────────────────────────────────────────────────
+// Locked segments (Month/Year) → show paywall instead of switching
+const LOCKED_SEGS = new Set(['month', 'year']);
+
+function setSeg(btn, key) {
+  if (LOCKED_SEGS.has(key)) {
+    const labels = { month: 'Monthly View', year: 'Yearly View' };
+    showPaywall(
+      labels[key],
+      'See monthly and yearly trends — track your awareness over time with Phoneless Pro.'
+    );
+    return;
+  }
+  btn.closest('.seg-wrap').querySelectorAll('.seg').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart(key);
+  updateNavLabel(key);
+}
+
+// ── Awareness period switcher ────────────────────────────────────────
+const LOCKED_AW = new Set(['week', 'month', 'year']);
+
+function setAwSeg(btn, key) {
+  if (LOCKED_AW.has(key)) {
+    const labels = {
+      week:  'Weekly Awareness',
+      month: 'Monthly Awareness',
+      year:  'Yearly Awareness',
+    };
+    const body = {
+      week:  'See how your Breaks, Nevermind, and Breathing trend across the week — with Phoneless Pro.',
+      month: 'Track monthly awareness trends. Your Nevermind record is waiting to be found.',
+      year:  'A full year of mindfulness data — only in Phoneless Pro.',
+    };
+    showPaywall(labels[key], body[key]);
+    return;
+  }
+  btn.closest('.aw-switcher').querySelectorAll('.aw-seg').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  // Today always shows the same static data in this prototype
+}
+
+// ── Paywall ──────────────────────────────────────────────────────────
+function showPaywall(title, body) {
+  document.getElementById('paywall-title').textContent = title;
+  document.getElementById('paywall-body').textContent  = body;
+  document.getElementById('paywall-overlay').classList.add('visible');
+  document.getElementById('paywall-sheet').classList.add('visible');
+}
+
+function hidePaywall() {
+  document.getElementById('paywall-overlay').classList.remove('visible');
+  document.getElementById('paywall-sheet').classList.remove('visible');
+}
+
+// ── Initial render ───────────────────────────────────────────────────
+renderChart('week');
+updateNavLabel('week');
+</script>
+
+<!-- ══ Paywall Sheet ══ -->
+<div class="paywall-overlay" id="paywall-overlay" onclick="hidePaywall()"></div>
+<div class="paywall-sheet" id="paywall-sheet">
+  <div class="paywall-handle"></div>
+  <div class="paywall-lock-wrap">
+    <svg width="26" height="30" viewBox="0 0 26 30" fill="none">
+      <rect x="1.5" y="13.5" width="23" height="15" rx="4" stroke="#FF9500" stroke-width="2"/>
+      <path d="M7 13V9a6 6 0 0 1 12 0v4" stroke="#FF9500" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="13" cy="21" r="2.5" fill="#FF9500"/>
+    </svg>
+  </div>
+  <div class="paywall-title" id="paywall-title">Phoneless Pro</div>
+  <div class="paywall-body" id="paywall-body">See any week with Phoneless Pro.</div>
+  <button class="paywall-cta" onclick="hidePaywall()">Unlock Pro</button>
+  <button class="paywall-dismiss" onclick="hidePaywall()">Not Now</button>
+</div>
+
+</body>
+</html>

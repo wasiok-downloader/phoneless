@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Limits — Card Concepts</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #E5E5EA;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+    padding: 40px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    margin-bottom: 32px;
+  }
+  .page-header-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    color: #8E8E93;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .page-header-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 6px;
+  }
+  .page-header-desc {
+    font-size: 14px;
+    color: #6C6C70;
+    line-height: 1.5;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 40px;
+  }
+  .section-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .eyebrow-problem { color: #FF3B30; }
+  .eyebrow-new { color: #0A84FF; }
+
+  /* ── SCREEN WRAPPER ── */
+  .screen {
+    background: #F2F2F7;
+    border-radius: 24px;
+    padding: 20px 16px 16px;
+  }
+
+  .screen-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .screen-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+  }
+  .add-btn {
+    width: 34px;
+    height: 34px;
+    background: #0A84FF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    padding: 14px 14px 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .card.card-exhausted {
+    background: #FFF5F5;
+  }
+
+  /* ── APP ROW ── */
+  .app-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .app-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #F07B3F 0%, #C13584 50%, #833AB4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .app-icon svg { width: 25px; height: 25px; }
+  .app-meta { flex: 1; min-width: 0; }
+  .app-name { font-size: 16px; font-weight: 600; color: #000; }
+  .app-status {
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 1px;
+  }
+  .status-green  { color: #34C759; }
+  .status-amber  { color: #FF9F0A; }
+  .status-red    { color: #FF3B30; }
+  .status-gray   { color: #8E8E93; }
+
+  .chevron { color: #C7C7CC; font-size: 16px; font-weight: 600; flex-shrink: 0; }
+
+  /* ── SEGMENTED BAR ── */
+  .seg-bar {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 8px;
+  }
+  .seg {
+    flex: 1;
+    height: 12px;
+    border-radius: 4px;
+  }
+  .seg-used   { background: #E5E5EA; }
+  .seg-blue   { background: #0A84FF; }
+  .seg-amber  { background: #FF9F0A; }
+  .seg-red    { background: #FF3B30; }
+  .seg-exhausted { background: rgba(255, 59, 48, 0.18); }
+
+  /* ── TIME LABEL ROW ── */
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .time-left {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .time-total {
+    font-size: 13px;
+    color: #8E8E93;
+    font-weight: 400;
+  }
+  .color-blue   { color: #0A84FF; }
+  .color-amber  { color: #FF9F0A; }
+  .color-red    { color: #FF3B30; }
+  .color-gray   { color: #8E8E93; }
+
+  /* ── BLOCK ANOTHER APP ── */
+  .block-btn {
+    background: #F2F2F7;
+    border-radius: 13px;
+    padding: 13px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: #3C3C43;
+    margin-top: 10px;
+  }
+
+  /* ── NOTE ── */
+  .note {
+    font-size: 13px;
+    color: #8E8E93;
+    margin-top: 10px;
+    line-height: 1.5;
+    padding: 0 2px;
+  }
+  .note b { color: #3C3C43; font-weight: 600; }
+
+  /* ── STATE LABEL ── */
+  .state-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .state-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── INTERACTION CALLOUT ── */
+  .callout {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  }
+  .callout-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 6px;
+  }
+  .callout-body {
+    font-size: 13px;
+    color: #6C6C70;
+    line-height: 1.5;
+  }
+  .callout-body b { color: #000; font-weight: 600; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: rgba(0,0,0,0.07);
+    margin: 14px 0;
+  }
+
+  /* ── STATES STACK ── */
+  .states-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Before/after compare */
+  .compare-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #8E8E93;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-eyebrow">App Limits Card</div>
+  <div class="page-header-title">Segmented Bar — States</div>
+  <div class="page-header-desc">Брейк кратен 5 мин → каждый брейк снимает ровно 1, 2 или 3 блока. Цвет = состояние.</div>
+</div>
+
+
+<!-- ═══════════════════════════
+     CURRENT (problem)
+════════════════════════════ -->
+<div class="section">
+  <div class="section-eyebrow eyebrow-problem">Сейчас — проблема</div>
+  <div class="screen">
+    <div class="screen-top">
+      <div class="screen-title">App Limits</div>
+      <div class="add-btn">+</div>
+    </div>
+    <div class="card">
+      <div class="app-row">
+        <div class="app-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+            <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+          </svg>
+        </div>
+        <div class="app-meta">
+          <div class="app-name">Instagram</div>
+          <div class="app-status status-green">Blocking is active</div>
+        </div>
+        <div class="chevron">›</div>
+      </div>
+      <!-- current bar: filled = remaining -->
+      <div style="height:8px;background:#E5E5EA;border-radius:100px;overflow:hidden;margin-bottom:8px;">
+        <div style="width:37%;height:100%;background:#0A84FF;border-radius:100px;"></div>
+      </div>
+      <div style="text-align:center;font-size:20px;font-weight:700;color:#0A84FF;">22 of 60 min left</div>
+    </div>
+    <div class="block-btn">Block another app</div>
+  </div>
+  <div class="note">Бар заполнен на 37% — непонятно, это "хорошо" или "плохо", и что вообще означает заполненность. Растущий бар = прогресс, убывающий — нет.</div>
+</div>
+
+
+<!-- ═══════════════════════════
+     NEW DESIGN — 4 states
+════════════════════════════ -->
+<div class="section">
+  <div class="section-eyebrow eyebrow-new">Сегментированный бар — 4 состояния</div>
+  <div class="note" style="margin-bottom:16px;">60 мин = 12 блоков по 5 мин. Серые блоки = потрачено. Цветные = остаток. Цвет меняется автоматически при приближении к лимиту.</div>
+
+  <div class="states-stack">
+
+    <!-- ── STATE 1: NORMAL ── -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#34C759;"></div>
+        <span style="color:#34C759;">Normal — много времени осталось</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card">
+          <div class="app-row">
+            <div class="app-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name">Instagram</div>
+              <div class="app-status status-green">Blocking is active</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <!-- 12 segs: 9 remaining blue, 3 used -->
+          <div class="seg-bar">
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-left color-blue">45 min left</div>
+            <div class="time-total">of 60</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+    <!-- ── STATE 2: MODERATE ── -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#0A84FF;"></div>
+        <span style="color:#0A84FF;">Active — меньше половины</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card">
+          <div class="app-row">
+            <div class="app-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name">Instagram</div>
+              <div class="app-status status-green">Blocking is active</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <!-- 4 remaining blue, 8 used: 20 min left -->
+          <div class="seg-bar">
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-blue"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-left color-blue">20 min left</div>
+            <div class="time-total">of 60</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+    <!-- ── STATE 3: WARNING ── -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#FF9F0A;"></div>
+        <span style="color:#FF9F0A;">Warning — осталось 2 блока (10 мин)</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card">
+          <div class="app-row">
+            <div class="app-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name">Instagram</div>
+              <div class="app-status status-amber">10 min remaining</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <!-- 2 remaining amber, 10 used -->
+          <div class="seg-bar">
+            <div class="seg seg-amber"></div>
+            <div class="seg seg-amber"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-left color-amber">10 min left</div>
+            <div class="time-total">of 60</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+      <div class="note">Статус-строка меняется с "Blocking is active" на "10 min remaining" — цвет усиливает сигнал без дополнительных UI-элементов.</div>
+    </div>
+
+    <!-- ── STATE 4: CRITICAL ── -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#FF3B30;"></div>
+        <span style="color:#FF3B30;">Critical — 1 блок (5 мин)</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card">
+          <div class="app-row">
+            <div class="app-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name">Instagram</div>
+              <div class="app-status status-red">5 min remaining</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <!-- 1 remaining red, 11 used -->
+          <div class="seg-bar">
+            <div class="seg seg-red"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+            <div class="seg seg-used"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-left color-red">5 min left</div>
+            <div class="time-total">of 60</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+    <!-- ── STATE 5: EXHAUSTED ── -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#FF3B30;opacity:0.4;"></div>
+        <span style="color:#8E8E93;">Exhausted — лимит исчерпан</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card card-exhausted">
+          <div class="app-row">
+            <div class="app-icon" style="opacity:0.55;">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name" style="color:#8E8E93;">Instagram</div>
+              <div class="app-status status-red">App is blocked</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <!-- all 12 exhausted -->
+          <div class="seg-bar">
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+            <div class="seg seg-exhausted"></div>
+          </div>
+          <div class="time-row">
+            <div class="time-left color-red" style="font-size:14px;font-weight:600;">Limit reached</div>
+            <div class="time-total">Resets at 4:20 AM</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+      <div class="note">Иконка приглушена, карточка чуть краснеет, текст справа — время сброса. Состояние читается сразу без текстового объяснения.</div>
+    </div>
+
+  </div><!-- /states-stack -->
+
+
+  <!-- ── INTERACTION CALLOUT ── -->
+  <div class="callout">
+    <div class="callout-title">Как работает списание блоков</div>
+    <div class="callout-body">
+      Брейк <b>5 мин</b> → исчезает <b>1 блок</b> слева<br>
+      Брейк <b>10 мин</b> → исчезают <b>2 блока</b> слева<br>
+      Брейк <b>15 мин</b> → исчезают <b>3 блока</b> слева<br><br>
+      Если в Session Selection осталось только 2 блока (10 мин), опция "15 мин" недоступна — это уже покрыто логикой адаптации лимита.
+    </div>
+  </div>
+
+</div><!-- /section -->
+
+
+<!-- ═══════════════════════════════════════
+     CONCEPT A — NUMBER AS HERO
+════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-eyebrow eyebrow-new">Концепт A — Число как герой</div>
+  <div class="note" style="margin-bottom:16px;">Иерархия перевёрнута: первое что видит глаз — сколько осталось, а не какое приложение. Приложение вторично. Цветной акцент слева = индикатор состояния без отдельного элемента.</div>
+
+  <div class="states-stack">
+
+    <!-- A: NORMAL -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#0A84FF;"></div>
+        <span style="color:#0A84FF;">Normal — 45 min left</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card" style="border-left: 3.5px solid #0A84FF; border-radius: 18px; padding-left: 13px;">
+          <!-- Big number hero -->
+          <div style="padding: 4px 0 10px;">
+            <div style="display:flex; align-items:baseline; gap:6px;">
+              <span style="font-size:46px; font-weight:700; line-height:1; color:#0A84FF; letter-spacing:-1px;">45</span>
+              <span style="font-size:18px; font-weight:600; color:#0A84FF; padding-bottom:2px;">min left</span>
+            </div>
+            <div style="font-size:13px; color:#8E8E93; margin-top:2px;">of 60 min daily</div>
+          </div>
+          <!-- Divider -->
+          <div style="height:1px; background:rgba(0,0,0,0.07); margin: 0 0 10px;"></div>
+          <!-- App row compact -->
+          <div class="app-row" style="margin-bottom:0;">
+            <div class="app-icon" style="width:36px;height:36px;border-radius:8px;">
+              <svg viewBox="0 0 24 24" fill="none" style="width:19px;height:19px;">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name" style="font-size:15px;">Instagram</div>
+              <div class="app-status status-green" style="font-size:12px;">Blocking is active</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+    <!-- A: WARNING -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#FF9F0A;"></div>
+        <span style="color:#FF9F0A;">Warning — 10 min left</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card" style="border-left: 3.5px solid #FF9F0A; border-radius: 18px; padding-left: 13px;">
+          <div style="padding: 4px 0 10px;">
+            <div style="display:flex; align-items:baseline; gap:6px;">
+              <span style="font-size:46px; font-weight:700; line-height:1; color:#FF9F0A; letter-spacing:-1px;">10</span>
+              <span style="font-size:18px; font-weight:600; color:#FF9F0A; padding-bottom:2px;">min left</span>
+            </div>
+            <div style="font-size:13px; color:#8E8E93; margin-top:2px;">of 60 min daily</div>
+          </div>
+          <div style="height:1px; background:rgba(0,0,0,0.07); margin: 0 0 10px;"></div>
+          <div class="app-row" style="margin-bottom:0;">
+            <div class="app-icon" style="width:36px;height:36px;border-radius:8px;">
+              <svg viewBox="0 0 24 24" fill="none" style="width:19px;height:19px;">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name" style="font-size:15px;">Instagram</div>
+              <div class="app-status status-amber" style="font-size:12px;">10 min remaining</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+    <!-- A: CRITICAL -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#FF3B30;"></div>
+        <span style="color:#FF3B30;">Critical — 5 min left</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card" style="border-left: 3.5px solid #FF3B30; border-radius: 18px; padding-left: 13px;">
+          <div style="padding: 4px 0 10px;">
+            <div style="display:flex; align-items:baseline; gap:6px;">
+              <span style="font-size:46px; font-weight:700; line-height:1; color:#FF3B30; letter-spacing:-1px;">5</span>
+              <span style="font-size:18px; font-weight:600; color:#FF3B30; padding-bottom:2px;">min left</span>
+            </div>
+            <div style="font-size:13px; color:#8E8E93; margin-top:2px;">of 60 min daily</div>
+          </div>
+          <div style="height:1px; background:rgba(0,0,0,0.07); margin: 0 0 10px;"></div>
+          <div class="app-row" style="margin-bottom:0;">
+            <div class="app-icon" style="width:36px;height:36px;border-radius:8px;">
+              <svg viewBox="0 0 24 24" fill="none" style="width:19px;height:19px;">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name" style="font-size:15px;">Instagram</div>
+              <div class="app-status status-red" style="font-size:12px;">5 min remaining</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+    <!-- A: EXHAUSTED -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#8E8E93;"></div>
+        <span style="color:#8E8E93;">Exhausted — лимит исчерпан</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card card-exhausted" style="border-left: 3.5px solid #FF3B30; border-radius: 18px; padding-left: 13px;">
+          <div style="padding: 4px 0 10px;">
+            <div style="display:flex; align-items:baseline; gap:6px;">
+              <span style="font-size:46px; font-weight:700; line-height:1; color:#C7C7CC; letter-spacing:-1px;">0</span>
+              <span style="font-size:18px; font-weight:600; color:#8E8E93; padding-bottom:2px;">min left</span>
+            </div>
+            <div style="font-size:13px; color:#FF3B30; font-weight:500; margin-top:2px;">Resets at 4:20 AM</div>
+          </div>
+          <div style="height:1px; background:rgba(0,0,0,0.07); margin: 0 0 10px;"></div>
+          <div class="app-row" style="margin-bottom:0;">
+            <div class="app-icon" style="width:36px;height:36px;border-radius:8px;opacity:0.45;">
+              <svg viewBox="0 0 24 24" fill="none" style="width:19px;height:19px;">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name" style="font-size:15px;color:#8E8E93;">Instagram</div>
+              <div class="app-status status-red" style="font-size:12px;">App is blocked</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CONCEPT B — AMBIENT FILL
+════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-eyebrow eyebrow-new">Концепт Б — Ambient fill</div>
+  <div class="note" style="margin-bottom:16px;">Фон карточки — это и есть индикатор. Нижняя часть = потраченное время (тонированная), верхняя = остаток (белая). Граница между ними сдвигается по мере использования. Никаких баров.</div>
+
+  <div class="states-stack">
+
+    <!-- B: NORMAL — 37% remaining (22 min of 60) -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#0A84FF;"></div>
+        <span style="color:#0A84FF;">Normal — 22 min left (37% remaining)</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <!-- Card: bottom 63% tinted = used, top 37% white = remaining -->
+        <div class="card" style="background: linear-gradient(to top, rgba(10,132,255,0.09) 0%, rgba(10,132,255,0.09) 63%, #ffffff 63%, #ffffff 100%); overflow: hidden;">
+          <div class="app-row">
+            <div class="app-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name">Instagram</div>
+              <div class="app-status status-green">Blocking is active</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <!-- thin level line -->
+          <div style="height:1px; background:rgba(10,132,255,0.25); margin-bottom:8px;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <div style="font-size:16px; font-weight:700; color:#0A84FF;">22 min left</div>
+            <div style="font-size:13px; color:#8E8E93;">of 60</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+      <div class="note">Горизонтальная линия на 37% сверху — это "уровень" остатка. Синяя зона снизу = уже потраченное. Интуитивно как стакан с водой.</div>
+    </div>
+
+    <!-- B: WARNING — 17% remaining (10 min of 60) -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#FF9F0A;"></div>
+        <span style="color:#FF9F0A;">Warning — 10 min left (17% remaining)</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card" style="background: linear-gradient(to top, rgba(255,159,10,0.10) 0%, rgba(255,159,10,0.10) 83%, #ffffff 83%, #ffffff 100%); overflow: hidden;">
+          <div class="app-row">
+            <div class="app-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name">Instagram</div>
+              <div class="app-status status-amber">10 min remaining</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <div style="height:1px; background:rgba(255,159,10,0.35); margin-bottom:8px;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <div style="font-size:16px; font-weight:700; color:#FF9F0A;">10 min left</div>
+            <div style="font-size:13px; color:#8E8E93;">of 60</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+    <!-- B: CRITICAL — 8% remaining (5 min of 60) -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#FF3B30;"></div>
+        <span style="color:#FF3B30;">Critical — 5 min left (8% remaining)</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card" style="background: linear-gradient(to top, rgba(255,59,48,0.09) 0%, rgba(255,59,48,0.09) 92%, #ffffff 92%, #ffffff 100%); overflow: hidden;">
+          <div class="app-row">
+            <div class="app-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name">Instagram</div>
+              <div class="app-status status-red">5 min remaining</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <div style="height:1px; background:rgba(255,59,48,0.35); margin-bottom:8px;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <div style="font-size:16px; font-weight:700; color:#FF3B30;">5 min left</div>
+            <div style="font-size:13px; color:#8E8E93;">of 60</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+      <div class="note">На Critical весь фон карточки становится почти полностью красным — визуальный сигнал тревоги без единого нового элемента.</div>
+    </div>
+
+    <!-- B: EXHAUSTED -->
+    <div>
+      <div class="state-label">
+        <div class="state-dot" style="background:#8E8E93;"></div>
+        <span style="color:#8E8E93;">Exhausted — лимит исчерпан</span>
+      </div>
+      <div class="screen">
+        <div class="screen-top">
+          <div class="screen-title">App Limits</div>
+          <div class="add-btn">+</div>
+        </div>
+        <div class="card" style="background: rgba(255,59,48,0.08); overflow: hidden;">
+          <div class="app-row">
+            <div class="app-icon" style="opacity:0.45;">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="white"/>
+              </svg>
+            </div>
+            <div class="app-meta">
+              <div class="app-name" style="color:#8E8E93;">Instagram</div>
+              <div class="app-status status-red">App is blocked</div>
+            </div>
+            <div class="chevron">›</div>
+          </div>
+          <div style="height:1px; background:rgba(255,59,48,0.2); margin-bottom:8px;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <div style="font-size:14px; font-weight:600; color:#FF3B30;">Limit reached</div>
+            <div style="font-size:13px; color:#8E8E93;">Resets at 4:20 AM</div>
+          </div>
+        </div>
+        <div class="block-btn">Block another app</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Limits Card · Concept A · Phoneless</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ─── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── Page ───────────────────────────────────────────────── */
+:root {
+  --page-bg:       #0C0C0E;
+  --surface:       #161618;
+  --border:        rgba(255,255,255,0.07);
+  --text-primary:  #F0F0F2;
+  --text-muted:    #6E6E73;
+  --text-dim:      #3A3A3C;
+  --accent-blue:   #0A84FF;
+
+  /* State palette — matches Phoneless CLAUDE.md + research */
+  --green:         #34C759;
+  --amber:         #FF9500;
+  --red:           #FF3B30;
+  --ios-gray:      #E5E5EA;
+  --ios-gray2:     #F2F2F7;
+  --ios-bg:        #F2F2F7;
+
+  --ff-page:    'Bricolage Grotesque', system-ui, sans-serif;
+  --ff-mono:    'DM Mono', 'SF Mono', monospace;
+  --ff-ios:     system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+}
+
+html { font-size: 16px; }
+body {
+  background: var(--page-bg);
+  color: var(--text-primary);
+  font-family: var(--ff-page);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 64px 40px 80px;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+.page-header {
+  margin-bottom: 56px;
+}
+.page-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent-blue);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.page-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.page-desc {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+/* ─── Two-column grid ────────────────────────────────────── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ─── iPhone frame ───────────────────────────────────────── */
+.phone-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.phone-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.iphone {
+  width: 320px;
+  background: #1A1A1C;
+  border-radius: 44px;
+  padding: 14px 12px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.12),
+    0 0 0 2px rgba(0,0,0,0.8),
+    0 32px 80px rgba(0,0,0,0.6),
+    0 8px 24px rgba(0,0,0,0.4);
+  position: relative;
+}
+
+/* Side buttons */
+.iphone::before {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 100px;
+  width: 3px;
+  height: 60px;
+  background: #2C2C2E;
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 80px 0 #2C2C2E;
+}
+.iphone::after {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 80px;
+  width: 3px;
+  height: 36px;
+  background: #2C2C2E;
+  border-radius: 2px 0 0 2px;
+  box-shadow: 0 50px 0 #2C2C2E, 0 94px 0 #2C2C2E;
+}
+
+.iphone-screen {
+  background: var(--ios-bg);
+  border-radius: 34px;
+  overflow: hidden;
+  height: 616px;
+  position: relative;
+}
+
+/* Dynamic Island */
+.dynamic-island {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 28px;
+  background: #1A1A1C;
+  border-radius: 20px;
+  z-index: 10;
+}
+
+/* Status bar */
+.status-bar {
+  height: 48px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 20px 6px;
+  position: relative;
+  z-index: 5;
+  font-family: var(--ff-ios);
+}
+
+.status-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1C1C1E;
+}
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-icons svg {
+  color: #1C1C1E;
+}
+
+/* Navigation bar */
+.nav-bar {
+  background: rgba(242,242,247,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 8px 16px 12px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.12);
+  font-family: var(--ff-ios);
+}
+
+.nav-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1C1C1E;
+  letter-spacing: -0.5px;
+}
+
+/* Screen content */
+.screen-content {
+  padding: 16px 14px;
+  overflow-y: auto;
+  height: calc(100% - 48px - 64px);
+  font-family: var(--ff-ios);
+}
+
+.section-header {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8E8E93;
+  padding: 0 2px;
+  margin-bottom: 8px;
+}
+
+/* ─── iOS Card ───────────────────────────────────────────── */
+.app-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* App Icon */
+.app-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  font-size: 16px;
+  border: 0px solid transparent;
+  transition: border-color 0.3s, border-width 0.3s;
+}
+
+.app-icon.state-caution {
+  outline: 2px solid var(--amber);
+  outline-offset: 1px;
+}
+.app-icon.state-danger {
+  outline: 2px solid var(--red);
+  outline-offset: 1px;
+}
+.app-icon.state-exhausted {
+  outline: 3px solid var(--red);
+  outline-offset: 1px;
+}
+
+/* Icon backgrounds */
+.app-icon.insta    { background: rgba(225,48,108,0.12); }
+.app-icon.tiktok   { background: rgba(0,0,0,0.08); }
+.app-icon.twitter  { background: rgba(0,0,0,0.08); }
+.app-icon.youtube  { background: rgba(255,0,0,0.10); }
+
+.card-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1C1C1E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.app-limit-info {
+  font-size: 11px;
+  color: #8E8E93;
+  margin-top: 1px;
+}
+
+.remaining-label {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.remaining-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8E8E93;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.remaining-value.state-caution  { color: var(--amber); }
+.remaining-value.state-danger   { color: var(--red); }
+.remaining-value.state-exhausted { color: var(--red); font-weight: 600; }
+
+.remaining-sub {
+  font-size: 10px;
+  color: #8E8E93;
+  margin-top: 1px;
+}
+
+/* Dual-segment bar */
+.bar-track {
+  height: 5px;
+  background: var(--ios-gray);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-used {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.4s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.bar-used.state-plenty     { background: var(--green); }
+.bar-used.state-caution    { background: var(--amber); }
+.bar-used.state-danger     { background: var(--red); }
+.bar-used.state-exhausted  { background: var(--red); }
+
+/* ─── State showcase ─────────────────────────────────────── */
+.states-col {
+  padding-top: 4px;
+}
+
+.states-col-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  font-family: var(--ff-mono);
+}
+
+.state-block {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.state-tag {
+  flex-shrink: 0;
+  width: 80px;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.state-name {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.state-name.state-plenty    { color: var(--green); }
+.state-name.state-caution   { color: var(--amber); }
+.state-name.state-danger    { color: var(--red); }
+.state-name.state-exhausted { color: var(--red); }
+
+.state-threshold {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: right;
+  line-height: 1.3;
+}
+
+/* Preview card for showcase */
+.preview-card {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-family: var(--ff-ios);
+  transition: border-color 0.3s;
+}
+
+.preview-card.state-caution  { border-color: rgba(255,149,0,0.25); }
+.preview-card.state-danger   { border-color: rgba(255,59,48,0.25); }
+.preview-card.state-exhausted { border-color: rgba(255,59,48,0.35); }
+
+.pcard-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.pcard-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.pcard-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pcard-remaining {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pcard-remaining.state-plenty    { color: #8E8E93; }
+.pcard-remaining.state-caution   { color: var(--amber); }
+.pcard-remaining.state-danger    { color: var(--red); }
+.pcard-remaining.state-exhausted { color: var(--red); font-weight: 600; }
+
+.pcard-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.pcard-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pcard-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 2px;
+}
+
+.pcard-fill.state-plenty    { background: var(--green); }
+.pcard-fill.state-caution   { background: var(--amber); }
+.pcard-fill.state-danger    { background: var(--red); }
+.pcard-fill.state-exhausted { background: var(--red); }
+
+/* Icon styles for preview cards */
+.pcard-icon.insta    { background: rgba(225,48,108,0.15); }
+.pcard-icon.tiktok   { background: rgba(200,200,200,0.1); }
+.pcard-icon.twitter  { background: rgba(200,200,200,0.1); }
+.pcard-icon.youtube  { background: rgba(255,0,0,0.12); }
+.pcard-icon.games    { background: rgba(90,78,233,0.15); }
+
+.pcard-icon.outline-caution  { outline: 2px solid var(--amber); outline-offset: 1px; }
+.pcard-icon.outline-danger   { outline: 2px solid var(--red);   outline-offset: 1px; }
+.pcard-icon.outline-exhausted{ outline: 3px solid var(--red);   outline-offset: 1px; }
+
+/* Icon annotation dots */
+.annotation {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.ann-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ann-text {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+/* ─── Divider ─────────────────────────────────────────────── */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 56px 0;
+}
+
+/* ─── Interactive Demo ───────────────────────────────────── */
+.demo-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.demo-left {}
+
+.demo-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--accent-blue);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.demo-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.demo-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+  max-width: 380px;
+}
+
+.slider-wrap {
+  margin-bottom: 20px;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.threshold-marks {
+  position: relative;
+  height: 16px;
+  margin-bottom: 4px;
+}
+
+.mark {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  top: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+.mark::before {
+  content: '|';
+  display: block;
+  text-align: center;
+}
+.mark.danger  { color: var(--red);   left: 20%; }
+.mark.caution { color: var(--amber); left: 50%; }
+
+input[type="range"] {
+  width: 100%;
+  height: 5px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--ios-gray);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+/* Live demo card */
+.demo-right {}
+
+.live-card-wrap {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.live-card-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.live-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  font-family: var(--ff-ios);
+  margin-bottom: 16px;
+}
+
+.live-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.live-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(90,78,233,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: outline 0.3s;
+}
+
+.live-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1C1C1E;
+}
+
+.live-remaining {
+  font-size: 13px;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.live-bar-track {
+  height: 6px;
+  background: var(--ios-gray);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.live-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.22,1,0.36,1), background-color 0.4s ease;
+}
+
+/* State info row */
+.state-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.state-badge {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 5px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.live-stats {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: right;
+  line-height: 1.5;
+}
+
+/* ─── Principle section ──────────────────────────────────── */
+.principles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 56px;
+}
+
+.principle-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.principle-num {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--accent-blue);
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.principle-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+
+.principle-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .main-grid { grid-template-columns: 1fr; }
+  .iphone { margin: 0 auto; }
+  .demo-section { grid-template-columns: 1fr; }
+  .principles { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+  <!-- ─── Header ─── -->
+  <header class="page-header">
+    <div class="page-eyebrow">Phoneless · App Limits Card · Concept A</div>
+    <h1 class="page-title">Dual-Segment Bar<br>+ State Color System</h1>
+    <p class="page-desc">
+      Двухсегментный бар: левая часть = использовано (цвет по состоянию), правая серая = остаток.
+      Цвет бара, текста и обводки иконки меняются синхронно при пересечении порогов.
+    </p>
+  </header>
+
+  <!-- ─── Main grid: phone + states ─── -->
+  <div class="main-grid">
+
+    <!-- iPhone mockup -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="iphone-screen">
+
+          <!-- Dynamic Island -->
+          <div class="dynamic-island"></div>
+
+          <!-- Status Bar -->
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor">
+                <rect x="0" y="3" width="3" height="9" rx="1" opacity="0.3"/>
+                <rect x="4.5" y="2" width="3" height="10" rx="1" opacity="0.5"/>
+                <rect x="9" y="0" width="3" height="12" rx="1"/>
+                <rect x="13.5" y="0" width="3" height="12" rx="1"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+                <path d="M8 2.5C10.4 2.5 12.6 3.5 14.1 5.2L15.5 3.6C13.5 1.4 10.9 0 8 0C5.1 0 2.5 1.4 0.5 3.6L1.9 5.2C3.4 3.5 5.6 2.5 8 2.5Z"/>
+                <path d="M8 5.5C9.6 5.5 11.1 6.2 12.1 7.4L13.5 5.8C12.1 4.1 10.2 3 8 3C5.8 3 3.9 4.1 2.5 5.8L3.9 7.4C4.9 6.2 6.4 5.5 8 5.5Z"/>
+                <circle cx="8" cy="10" r="1.5"/>
+              </svg>
+              <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+                <rect x="0" y="1" width="21" height="10" rx="3" stroke="currentColor" stroke-width="1" fill="none" opacity="0.35"/>
+                <rect x="1.5" y="2.5" width="17" height="7" rx="1.5"/>
+                <path d="M22 4v4c.83-.37 1.33-1.25 1.33-2S22.83 4.37 22 4z" opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Nav bar -->
+          <div class="nav-bar">
+            <div class="nav-title">App Limits</div>
+          </div>
+
+          <!-- Screen content -->
+          <div class="screen-content">
+            <div class="section-header">Today</div>
+
+            <!-- Card 1: PLENTY — Instagram, 22/60 used, 38 left -->
+            <div class="app-card">
+              <div class="card-row">
+                <div class="app-icon insta">📷</div>
+                <div class="card-meta">
+                  <div class="app-name">Instagram</div>
+                  <div class="app-limit-info">60 min limit</div>
+                </div>
+                <div class="remaining-label">
+                  <div class="remaining-value">38 min left</div>
+                </div>
+              </div>
+              <div class="bar-track">
+                <div class="bar-used state-plenty" style="width: 36.7%"></div>
+              </div>
+            </div>
+
+            <!-- Card 2: CAUTION — TikTok, 20/30 used, 10 left -->
+            <div class="app-card">
+              <div class="card-row">
+                <div class="app-icon tiktok state-caution">🎵</div>
+                <div class="card-meta">
+                  <div class="app-name">TikTok</div>
+                  <div class="app-limit-info">30 min limit</div>
+                </div>
+                <div class="remaining-label">
+                  <div class="remaining-value state-caution">10 min left</div>
+                </div>
+              </div>
+              <div class="bar-track">
+                <div class="bar-used state-caution" style="width: 66.7%"></div>
+              </div>
+            </div>
+
+            <!-- Card 3: DANGER — Twitter, 13/15 used, 2 left -->
+            <div class="app-card">
+              <div class="card-row">
+                <div class="app-icon twitter state-danger">✕</div>
+                <div class="card-meta">
+                  <div class="app-name">X (Twitter)</div>
+                  <div class="app-limit-info">15 min limit</div>
+                </div>
+                <div class="remaining-label">
+                  <div class="remaining-value state-danger">2 min left</div>
+                </div>
+              </div>
+              <div class="bar-track">
+                <div class="bar-used state-danger" style="width: 86.7%"></div>
+              </div>
+            </div>
+
+            <!-- Card 4: EXHAUSTED — YouTube -->
+            <div class="app-card">
+              <div class="card-row">
+                <div class="app-icon youtube state-exhausted">▶</div>
+                <div class="card-meta">
+                  <div class="app-name">YouTube</div>
+                  <div class="app-limit-info">60 min limit</div>
+                </div>
+                <div class="remaining-label">
+                  <div class="remaining-value state-exhausted">Exhausted</div>
+                  <div class="remaining-sub">resets 04:20</div>
+                </div>
+              </div>
+              <div class="bar-track">
+                <div class="bar-used state-exhausted" style="width: 100%"></div>
+              </div>
+            </div>
+
+          </div><!-- /screen-content -->
+        </div><!-- /screen -->
+      </div><!-- /iphone -->
+      <div class="phone-label">iPhone 16 Pro · 375pt wide</div>
+    </div>
+
+    <!-- ─── State breakdown ─── -->
+    <div class="states-col">
+      <div class="states-col-title">Четыре состояния</div>
+
+      <!-- PLENTY -->
+      <div class="state-block">
+        <div class="state-tag">
+          <span class="state-name state-plenty">Plenty</span>
+          <span class="state-threshold">&gt; 50%<br>remaining</span>
+        </div>
+        <div class="preview-card state-plenty">
+          <div class="pcard-row">
+            <div class="pcard-icon insta">📷</div>
+            <div>
+              <div class="pcard-name">Instagram</div>
+            </div>
+            <div>
+              <div class="pcard-remaining state-plenty">38 min left</div>
+              <div class="pcard-sub">of 60 min</div>
+            </div>
+          </div>
+          <div class="pcard-bar">
+            <div class="pcard-fill state-plenty" style="width: 36.7%"></div>
+          </div>
+          <div class="annotation">
+            <div class="ann-dot" style="background: var(--green)"></div>
+            <span class="ann-text">Green bar · Gray text — не привлекает внимание</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAUTION -->
+      <div class="state-block">
+        <div class="state-tag">
+          <span class="state-name state-caution">Caution</span>
+          <span class="state-threshold">20–50%<br>remaining</span>
+        </div>
+        <div class="preview-card state-caution">
+          <div class="pcard-row">
+            <div class="pcard-icon tiktok outline-caution">🎵</div>
+            <div>
+              <div class="pcard-name">TikTok</div>
+            </div>
+            <div>
+              <div class="pcard-remaining state-caution">10 min left</div>
+              <div class="pcard-sub">of 30 min</div>
+            </div>
+          </div>
+          <div class="pcard-bar">
+            <div class="pcard-fill state-caution" style="width: 66.7%"></div>
+          </div>
+          <div class="annotation">
+            <div class="ann-dot" style="background: var(--amber)"></div>
+            <span class="ann-text">Amber bar + text + icon border — тройной сигнал</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DANGER -->
+      <div class="state-block">
+        <div class="state-tag">
+          <span class="state-name state-danger">Danger</span>
+          <span class="state-threshold">&lt; 20%<br>remaining</span>
+        </div>
+        <div class="preview-card state-danger">
+          <div class="pcard-row">
+            <div class="pcard-icon twitter outline-danger">✕</div>
+            <div>
+              <div class="pcard-name">X (Twitter)</div>
+            </div>
+            <div>
+              <div class="pcard-remaining state-danger">2 min left</div>
+              <div class="pcard-sub">of 15 min</div>
+            </div>
+          </div>
+          <div class="pcard-bar">
+            <div class="pcard-fill state-danger" style="width: 86.7%"></div>
+          </div>
+          <div class="annotation">
+            <div class="ann-dot" style="background: var(--red)"></div>
+            <span class="ann-text">Red everywhere — серый остаток справа виден сразу</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXHAUSTED -->
+      <div class="state-block">
+        <div class="state-tag">
+          <span class="state-name state-exhausted">Exhausted</span>
+          <span class="state-threshold">0 min<br>remaining</span>
+        </div>
+        <div class="preview-card state-exhausted">
+          <div class="pcard-row">
+            <div class="pcard-icon youtube outline-exhausted">▶</div>
+            <div>
+              <div class="pcard-name">YouTube</div>
+            </div>
+            <div>
+              <div class="pcard-remaining state-exhausted">Exhausted</div>
+              <div class="pcard-sub">resets 04:20</div>
+            </div>
+          </div>
+          <div class="pcard-bar">
+            <div class="pcard-fill state-exhausted" style="width: 100%"></div>
+          </div>
+          <div class="annotation">
+            <div class="ann-dot" style="background: var(--red)"></div>
+            <span class="ann-text">Полный красный + "Exhausted" + время сброса</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /states-col -->
+  </div><!-- /main-grid -->
+
+  <hr class="section-divider">
+
+  <!-- ─── Interactive Demo ─── -->
+  <div class="demo-section">
+
+    <div class="demo-left">
+      <div class="demo-eyebrow">Live Demo</div>
+      <h2 class="demo-title">Симулятор состояний</h2>
+      <p class="demo-desc">
+        Перемещайте слайдер — смотрите, как бар, текст и обводка иконки
+        меняются при пересечении порогов. Никаких промежуточных состояний,
+        только чёткие переходы.
+      </p>
+
+      <div class="slider-wrap">
+        <div class="slider-labels">
+          <span>0 min (Exhausted)</span>
+          <span>60 min (Full)</span>
+        </div>
+        <div class="threshold-marks">
+          <span class="mark danger">20%<br>Danger</span>
+          <span class="mark caution">50%<br>Caution</span>
+        </div>
+        <input type="range" id="demoSlider" min="0" max="60" value="45">
+      </div>
+
+      <div style="margin-top: 12px; font-family: var(--ff-mono); font-size: 11px; color: var(--text-dim); line-height: 1.8;">
+        <div>Пороги работают <em style="color: var(--text-muted)">относительно</em> лимита:</div>
+        <div>— Danger &lt; 20% остатка (3 из 15 или 12 из 60 — одинаково)</div>
+        <div>— Caution &lt; 50% остатка</div>
+        <div>— Plenty всё остальное</div>
+      </div>
+    </div>
+
+    <div class="demo-right">
+      <div class="live-card-wrap">
+        <div class="live-card-label">Focus App · Limit: 60 min</div>
+
+        <div class="live-card">
+          <div class="live-row">
+            <div class="live-icon" id="liveIcon">🎮</div>
+            <span class="live-name">Focus App</span>
+            <div>
+              <div class="live-remaining" id="liveRemaining">45 min left</div>
+            </div>
+          </div>
+          <div class="live-bar-track">
+            <div class="live-bar-fill" id="liveBarFill" style="width: 25%"></div>
+          </div>
+        </div>
+
+        <div class="state-info-row">
+          <div class="state-badge" id="stateBadge">PLENTY</div>
+          <div class="live-stats" id="liveStats">
+            45 min remaining<br>
+            25 min used of 60
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Principles ─── -->
+  <div class="principles">
+    <div class="principle-card">
+      <div class="principle-num">01 · INSTANT READ</div>
+      <div class="principle-title">Понятно без объяснений</div>
+      <p class="principle-text">
+        Двухсегментный бар — паттерн из iOS Storage и YouTube. Серая часть справа
+        — это «ещё есть». Мозг это понимает без обучения.
+      </p>
+    </div>
+    <div class="principle-card">
+      <div class="principle-num">02 · PERIPHERAL</div>
+      <div class="principle-title">Читается краем зрения</div>
+      <p class="principle-text">
+        Цвет меняется синхронно в трёх местах: бар, текст, обводка иконки.
+        Даже не глядя на карточку — красный блок виден в списке.
+      </p>
+    </div>
+    <div class="principle-card">
+      <div class="principle-num">03 · COHERENT</div>
+      <div class="principle-title">Цифры = визуал</div>
+      <p class="principle-text">
+        «2 min left» написано красным — и бар почти полный красный.
+        Цифра не дублирует визуал, они говорят одно и то же разными языками.
+      </p>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+const slider = document.getElementById('demoSlider');
+const liveIcon = document.getElementById('liveIcon');
+const liveRemaining = document.getElementById('liveRemaining');
+const liveBarFill = document.getElementById('liveBarFill');
+const stateBadge = document.getElementById('stateBadge');
+const liveStats = document.getElementById('liveStats');
+
+const LIMIT = 60;
+
+const STATES = {
+  exhausted: {
+    barColor: '#FF3B30',
+    textColor: '#FF3B30',
+    iconOutline: '3px solid #FF3B30',
+    badgeBg: 'rgba(255,59,48,0.15)',
+    badgeColor: '#FF3B30',
+    label: 'EXHAUSTED',
+  },
+  danger: {
+    barColor: '#FF3B30',
+    textColor: '#FF3B30',
+    iconOutline: '2px solid #FF3B30',
+    badgeBg: 'rgba(255,59,48,0.12)',
+    badgeColor: '#FF3B30',
+    label: 'DANGER',
+  },
+  caution: {
+    barColor: '#FF9500',
+    textColor: '#FF9500',
+    iconOutline: '2px solid #FF9500',
+    badgeBg: 'rgba(255,149,0,0.12)',
+    badgeColor: '#FF9500',
+    label: 'CAUTION',
+  },
+  plenty: {
+    barColor: '#34C759',
+    textColor: '#8E8E93',
+    iconOutline: 'none',
+    badgeBg: 'rgba(52,199,89,0.12)',
+    badgeColor: '#34C759',
+    label: 'PLENTY',
+  },
+};
+
+function getState(remaining, limit) {
+  const fraction = remaining / limit;
+  if (remaining <= 0) return 'exhausted';
+  if (fraction < 0.20) return 'danger';
+  if (fraction < 0.50) return 'caution';
+  return 'plenty';
+}
+
+function update() {
+  const remaining = parseInt(slider.value);
+  const used = LIMIT - remaining;
+  const usedPct = (used / LIMIT) * 100;
+  const stateName = getState(remaining, LIMIT);
+  const state = STATES[stateName];
+
+  // Bar
+  liveBarFill.style.width = Math.min(usedPct, 100) + '%';
+  liveBarFill.style.backgroundColor = state.barColor;
+
+  // Remaining text
+  if (stateName === 'exhausted') {
+    liveRemaining.innerHTML = '<strong>Exhausted</strong>';
+  } else {
+    liveRemaining.textContent = remaining + ' min left';
+  }
+  liveRemaining.style.color = state.textColor;
+  liveRemaining.style.fontWeight = stateName === 'exhausted' ? '600' : '500';
+
+  // Icon outline
+  liveIcon.style.outline = state.iconOutline;
+  liveIcon.style.outlineOffset = '1px';
+
+  // Badge
+  stateBadge.textContent = state.label;
+  stateBadge.style.background = state.badgeBg;
+  stateBadge.style.color = state.badgeColor;
+
+  // Stats
+  liveStats.innerHTML = `${remaining} min remaining<br>${used} min used of ${LIMIT}`;
+}
+
+slider.addEventListener('input', update);
+update();
+</script>
+
+</body>
+</html>
