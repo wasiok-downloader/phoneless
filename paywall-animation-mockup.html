@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paywall Animation Mockup</title>
+  <style>
+    @font-face {
+      font-family: 'Etna Condensed';
+      src: url('Etna/EtnaCondensed-Bold.woff2') format('woff2'),
+           url('Etna/EtnaCondensed-Bold.woff') format('woff');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 28px;
+    }
+
+    .replay-btn {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 100px;
+      padding: 9px 22px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .replay-btn:hover {
+      background: rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.85);
+    }
+
+    .iphone {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(180deg, #052F13 0%, #285A38 100%);
+      border-radius: 55px;
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+      box-shadow:
+        0 60px 120px rgba(0,0,0,0.7),
+        0 0 0 0.5px rgba(255,255,255,0.07) inset;
+    }
+
+    .screen-content {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .screen-content::-webkit-scrollbar { display: none; }
+
+    /* ── Pattern Lines ── */
+    .pattern-lines {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0.06;
+    }
+    .pattern-lines::before {
+      content: '';
+      position: absolute;
+      inset: -50% -50% -50% -50%;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 18px,
+        rgba(255,255,255,0.5) 18px,
+        rgba(255,255,255,0.5) 19px
+      );
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      position: sticky;
+      top: 0;
+      height: 59px;
+      display: flex;
+      align-items: center;
+      padding: 11px 16px;
+      z-index: 10;
+    }
+    .status-time {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      flex: 1;
+    }
+    .dynamic-island {
+      width: 125px;
+      height: 37px;
+      background: #000;
+      border-radius: 100px;
+    }
+    .status-icons {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+    .status-icons svg { display: block; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 136px 16px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    /* ── Title with typewriter ── */
+    .title-wrap {
+      width: 100%;
+      min-height: 66px;
+    }
+    #title {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: 0.4px;
+      text-align: center;
+    }
+    #cursor {
+      display: inline-block;
+      width: 2px;
+      height: 30px;
+      background: #fff;
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.5s step-end infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* ── Big Number ── */
+    .big-number-area {
+      width: 100%;
+      height: 276px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .odometer-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 80px;
+      opacity: 0;
+    }
+
+    .dollar-sign {
+      font-family: 'Etna Condensed', Georgia, serif;
+      font-size: 80px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 80px;
+    }
+
+    .digit-col {
+      height: 80px;
+      overflow: hidden;
+      clip-path: inset(0);
+    }
+
+    .digit-strip {
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+
+    .digit-char {
+      font-family: 'Etna Condensed', Georgia, serif;
+      font-size: 80px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 80px;
+      height: 80px;
+      text-align: center;
+      min-width: 48px;
+    }
+
+    /* ── Doodle ── */
+    .doodle-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, calc(-50% - 8px));
+      width: 310px;
+      height: 220px;
+      pointer-events: none;
+    }
+    .doodle-wrap svg {
+      width: 100%;
+      height: 100%;
+    }
+    .doodle-path {
+      fill: none;
+      stroke: #4EBF4E;
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── Subtext ── */
+    .subtext {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: rgba(240, 245, 235, 0.75);
+      text-align: center;
+      line-height: 20px;
+      letter-spacing: -0.23px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    /* ── Value Prop Title ── */
+    .value-prop {
+      padding: 48px 16px 24px;
+      text-align: center;
+    }
+    .value-prop-line {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 31px;
+      letter-spacing: 0.28px;
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    /* ── Benefits ── */
+    .benefits {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+    .benefits-title {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 28px;
+      letter-spacing: -0.26px;
+      text-align: center;
+    }
+    .benefits-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+    .badge-icon {
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .badge-icon svg {
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+    .badge-text {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: #fff;
+      line-height: 20px;
+      letter-spacing: -0.23px;
+    }
+
+    .bottom-spacer { height: 60px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      #cursor { animation: none; opacity: 1; }
+      .digit-strip { transition-duration: 0.01s !important; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="replay-btn" onclick="replay()">Replay animation</button>
+
+<div class="iphone">
+  <div class="pattern-lines"></div>
+  <div class="screen-content">
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-time">9:41</div>
+      <div class="dynamic-island"></div>
+      <div class="status-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+          <rect x="0" y="3" width="3" height="9" rx="1" fill="white" opacity="0.4"/>
+          <rect x="4" y="2" width="3" height="10" rx="1" fill="white" opacity="0.5"/>
+          <rect x="8" y="1" width="3" height="11" rx="1" fill="white" opacity="0.7"/>
+          <rect x="12" y="0" width="3" height="12" rx="1" fill="white"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+          <path d="M8 3.6C10.2 3.6 12.1 4.5 13.5 6L15 4.5C13.1 2.6 10.7 1.5 8 1.5S2.9 2.6 1 4.5L2.5 6C3.9 4.5 5.8 3.6 8 3.6Z" fill="white"/>
+          <path d="M8 7.2C9.3 7.2 10.5 7.7 11.4 8.5L8 12L4.6 8.5C5.5 7.7 6.7 7.2 8 7.2Z" fill="white"/>
+        </svg>
+        <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+          <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="white" opacity="0.35"/>
+          <rect x="2" y="2" width="20" height="9" rx="2" fill="white"/>
+          <rect x="25" y="4" width="2" height="5" rx="1" fill="white" opacity="0.35"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="title-wrap">
+        <div id="title"><span id="cursor"></span></div>
+      </div>
+
+      <div class="big-number-area">
+        <div class="odometer-wrap" id="odometer">
+          <span class="dollar-sign">$</span>
+          <div class="digit-col" id="col-hundreds"></div>
+          <div class="digit-col" id="col-tens"></div>
+          <div class="digit-col" id="col-ones"></div>
+        </div>
+
+        <!-- Doodle: multi-loop hand-drawn scribble (~2.5 wraps) -->
+        <div class="doodle-wrap" id="doodleWrap">
+          <svg viewBox="0 0 310 220" fill="none">
+            <path class="doodle-path" id="doodlePath" d="
+              M 275 68
+              C 295 100, 290 150, 258 178
+              C 226 206, 172 216, 125 212
+              C 78 208, 32 184, 14 150
+              C -4 116, 2 70, 30 44
+              C 58 18, 105 4, 158 6
+              C 211 8, 262 32, 280 68
+
+              C 292 98, 285 142, 255 170
+              C 225 198, 178 210, 135 208
+              C 92 206, 48 188, 24 158
+              C 0 128, 0 82, 22 52
+              C 44 22, 92 10, 148 8
+              C 204 6, 255 26, 278 58
+
+              C 294 84, 292 120, 275 148
+              C 255 182, 210 200, 160 204
+            "/>
+          </svg>
+        </div>
+
+        <div class="subtext" id="subtext">estimated based on your profile</div>
+      </div>
+    </div>
+
+    <!-- Value Prop Title -->
+    <div class="value-prop" id="valueProp">
+      <div class="value-prop-line">We find class action</div>
+      <div class="value-prop-line">settlements you qualify for</div>
+      <div class="value-prop-line">and help you file</div>
+    </div>
+
+    <!-- Benefits -->
+    <div class="benefits">
+      <div class="benefits-title">What you get</div>
+      <div class="benefits-list">
+        <div class="badge">
+          <div class="badge-icon">
+            <svg viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="#46B446" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="badge-text">Access to the largest, always up-to-date claims database</span>
+        </div>
+        <div class="badge">
+          <div class="badge-icon">
+            <svg viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="#46B446" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="badge-text">Claims matched to your purchases &amp; location</span>
+        </div>
+        <div class="badge">
+          <div class="badge-icon">
+            <svg viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="#46B446" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="badge-text">Instant alerts when new claims become available</span>
+        </div>
+        <div class="badge">
+          <div class="badge-icon">
+            <svg viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="#46B446" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="badge-text">Step-by-step filing assistance</span>
+        </div>
+        <div class="badge">
+          <div class="badge-icon">
+            <svg viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="#46B446" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="badge-text">An app that pays for itself</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-spacer"></div>
+  </div>
+</div>
+
+<script>
+  const TITLE_TEXT = "Money you're owed.\nWithout even knowing it.";
+  const TARGET = [2, 0, 3];
+  const DIGIT_H = 80; // matches CSS height/line-height
+
+  // How many full 0-9 rotations before landing on target
+  const EXTRA_ROTATIONS = [1, 1, 2]; // hundreds=1, tens=1, ones=2 (fastest visual spin)
+
+  // Durations: hundreds stops first, ones stops last
+  const DURATIONS = [1800, 2000, 2200];
+
+  // ── Build odometer strips ──
+  function buildStrips() {
+    const colIds = ['col-hundreds', 'col-tens', 'col-ones'];
+    TARGET.forEach((targetDigit, i) => {
+      const col = document.getElementById(colIds[i]);
+      col.innerHTML = '';
+
+      const strip = document.createElement('div');
+      strip.className = 'digit-strip';
+      strip.id = 'strip-' + i;
+
+      // Total positions: extra full rotations × 10 + target digit
+      const totalPositions = EXTRA_ROTATIONS[i] * 10 + targetDigit;
+
+      for (let d = 0; d <= totalPositions; d++) {
+        const el = document.createElement('div');
+        el.className = 'digit-char';
+        el.textContent = d % 10;
+        strip.appendChild(el);
+      }
+
+      col.appendChild(strip);
+    });
+  }
+
+  // ── Step 1: Typewriter ──
+  function typewriter() {
+    return new Promise(resolve => {
+      const el = document.getElementById('title');
+      const cursor = document.getElementById('cursor');
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < TITLE_TEXT.length) {
+          const char = TITLE_TEXT[i];
+          if (char === '\n') {
+            el.insertBefore(document.createElement('br'), cursor);
+          } else {
+            el.insertBefore(document.createTextNode(char), cursor);
+          }
+          i++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            cursor.style.display = 'none';
+            resolve();
+          }, 600);
+        }
+      }, 33);
+    });
+  }
+
+  // ── Step 2: Odometer roll ──
+  function odometerRoll() {
+    return new Promise(resolve => {
+      const odo = document.getElementById('odometer');
+      odo.style.opacity = '1';
+
+      TARGET.forEach((targetDigit, i) => {
+        const strip = document.getElementById('strip-' + i);
+        const totalPositions = EXTRA_ROTATIONS[i] * 10 + targetDigit;
+        const offset = totalPositions * DIGIT_H;
+
+        // Ensure initial state
+        strip.style.transition = 'none';
+        strip.style.transform = 'translateY(0)';
+
+        // Force reflow then animate
+        strip.offsetHeight;
+
+        requestAnimationFrame(() => {
+          strip.style.transition = `transform ${DURATIONS[i]}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+          strip.style.transform = `translateY(-${offset}px)`;
+        });
+      });
+
+      // Resolve after the slowest column finishes
+      setTimeout(resolve, Math.max(...DURATIONS) + 100);
+    });
+  }
+
+  // ── Step 3: Doodle stroke draw ──
+  function doodleDraw() {
+    return new Promise(resolve => {
+      const path = document.getElementById('doodlePath');
+      const len = path.getTotalLength();
+
+      // Reset
+      path.style.transition = 'none';
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.offsetHeight; // force reflow
+
+      path.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
+      path.style.strokeDashoffset = '0';
+
+      setTimeout(resolve, 850);
+    });
+  }
+
+  // ── Step 4: Subtext fade in ──
+  function subtextFade() {
+    return new Promise(resolve => {
+      const el = document.getElementById('subtext');
+      el.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+      setTimeout(resolve, 550);
+    });
+  }
+
+  // ── Step 5: Value prop stagger ──
+  function valuePropStagger() {
+    return new Promise(resolve => {
+      const lines = document.querySelectorAll('.value-prop-line');
+      lines.forEach((line, i) => {
+        setTimeout(() => {
+          line.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+          line.style.opacity = '1';
+          line.style.transform = 'translateY(0)';
+        }, i * 120);
+      });
+      setTimeout(resolve, lines.length * 120 + 450);
+    });
+  }
+
+  // ── Reset everything ──
+  function resetAll() {
+    const titleEl = document.getElementById('title');
+    titleEl.innerHTML = '<span id="cursor"></span>';
+
+    document.getElementById('odometer').style.opacity = '0';
+    buildStrips();
+
+    const path = document.getElementById('doodlePath');
+    path.style.transition = 'none';
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
+
+    const sub = document.getElementById('subtext');
+    sub.style.transition = 'none';
+    sub.style.opacity = '0';
+    sub.style.transform = 'translateY(8px)';
+
+    document.querySelectorAll('.value-prop-line').forEach(l => {
+      l.style.transition = 'none';
+      l.style.opacity = '0';
+      l.style.transform = 'translateY(12px)';
+    });
+
+    document.querySelector('.screen-content').scrollTop = 0;
+  }
+
+  // ── Run sequence ──
+  async function runSequence() {
+    resetAll();
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    await typewriter();
+    await odometerRoll();
+    await doodleDraw();
+    await new Promise(r => setTimeout(r, 200));
+    await subtextFade();
+    await new Promise(r => setTimeout(r, 300));
+    await valuePropStagger();
+  }
+
+  function replay() { runSequence(); }
+
+  buildStrips();
+  runSequence();
+</script>
+
+</body>
+</html>
