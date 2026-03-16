@@ -91,9 +91,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 0;
-      transform: scale(0.82);
-      animation: iconIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+      opacity: 1;
     }
     .app-icon-letter {
       font-family: ui-rounded, -apple-system, sans-serif;
@@ -161,27 +159,21 @@
       opacity: 0;
     }
 
-    /* ── "On purpose." ── */
-    #onPurpose {
+    /* ── "Wasting time?" ── */
+    #wastingTime {
       position: absolute;
       left: 0; right: 0;
-      top: 580px;
+      top: 514px;
       text-align: center;
       opacity: 0;
     }
 
-    /* ── Subtitle ── */
-    #subtitle {
+    /* ── "Intentionally." ── */
+    #intentionally {
       position: absolute;
-      left: 32px; right: 32px;
-      top: 632px;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 17px;
-      font-weight: 600;
-      color: #0E101B;
+      left: 0; right: 0;
+      top: 580px;
       text-align: center;
-      line-height: 22px;
-      letter-spacing: -0.43px;
       opacity: 0;
     }
 
@@ -220,9 +212,6 @@
       border-radius: 100px;
     }
 
-    @keyframes iconIn {
-      to { opacity: 1; transform: scale(1); }
-    }
   </style>
 </head>
 <body>
@@ -280,9 +269,9 @@
     </div>
 
     <!-- State-2 elements (all start invisible) -->
-    <div id="useYour"   class="hl">Use your</div>
-    <div id="onPurpose" class="hl">On purpose.</div>
-    <div id="subtitle">Set which apps distract you. Phoneless adds a pause before each one — so you always choose what to do next.</div>
+    <div id="wastingTime" class="hl">Wasting time?</div>
+    <div id="useYour" class="hl">Use your</div>
+    <div id="intentionally" class="hl">Intentionally.</div>
     <div id="ctaWrap">
       <div class="cta-button"><span>Continue</span></div>
     </div>
@@ -303,25 +292,25 @@
     async function runAnimation(root) {
       const $ = id => root.querySelector('#' + id);
 
-      const morphWord = $('morphWord');
-      const capP      = $('capP');
-      const lowerP    = $('lowerP');
-      const lessDot   = $('lessDot');
-      const dotChar   = $('dotChar');
-      const useYour   = $('useYour');
-      const onPurpose = $('onPurpose');
-      const subtitle  = $('subtitle');
-      const ctaWrap   = $('ctaWrap');
+      const morphWord   = $('morphWord');
+      const capP        = $('capP');
+      const lowerP      = $('lowerP');
+      const lessDot     = $('lessDot');
+      const dotChar     = $('dotChar');
+      const wastingTime    = $('wastingTime');
+      const useYour        = $('useYour');
+      const intentionally  = $('intentionally');
+      const ctaWrap        = $('ctaWrap');
 
-      // ① Phoneless fades up under the icon
-      await wait(1100);
+      // ① Phoneless fades up under the icon (icon already visible, like after splash)
+      await wait(600);
       go(morphWord,
         [{ opacity: 0, transform: 'translateY(10px)' },
          { opacity: 1, transform: 'translateY(0)'    }],
         { duration: 480, easing: SPRING });
 
       // ② Morph: "Phoneless" → "phone less."
-      await wait(800); // t = 1900 ms
+      await wait(800); // t ≈ 1900 ms
 
       // Whole word slides to its final position (left 181, top 548)
       go(morphWord,
@@ -348,28 +337,29 @@
         [{ opacity: 0 }, { opacity: 1 }],
         { duration: 280, delay: 180, easing: 'ease-out' });
 
-      // ③ "Use your" slides in from the left
-      await wait(200); // t = 2100 ms
+      // ③ "Wasting time?" fades in as morphWord clears its position
+      await wait(150); // t ≈ 2050 ms
+      go(wastingTime,
+        [{ opacity: 0, transform: 'translateY(6px)' },
+         { opacity: 1, transform: 'translateY(0)'   }],
+        { duration: 420, easing: EASE_OUT });
+
+      // ④ "Use your" slides in from the left
+      await wait(150); // t ≈ 2200 ms
       go(useYour,
         [{ opacity: 0, transform: 'translateX(-18px)' },
          { opacity: 1, transform: 'translateX(0)'     }],
         { duration: 460, easing: SPRING });
 
-      // ④ "On purpose." fades up
-      await wait(400); // t = 2500 ms
-      go(onPurpose,
+      // ⑤ "Intentionally." fades up below the headline
+      await wait(350); // t ≈ 2550 ms
+      go(intentionally,
         [{ opacity: 0, transform: 'translateY(8px)' },
          { opacity: 1, transform: 'translateY(0)'   }],
         { duration: 450, easing: SPRING });
 
-      // ⑤ Subtitle fades in — 1 сек паузы после "On purpose."
-      await wait(1450); // t = 3950 ms  (onPurpose start 2500 + anim 450 + pause 1000)
-      go(subtitle,
-        [{ opacity: 0 }, { opacity: 1 }],
-        { duration: 550, easing: EASE_OUT });
-
       // ⑥ Continue button rises
-      await wait(900); // t = 5200 ms
+      await wait(800); // t ≈ 3350 ms
       go(ctaWrap,
         [{ opacity: 0, transform: 'translateY(18px)' },
          { opacity: 1, transform: 'translateY(0)'    }],
